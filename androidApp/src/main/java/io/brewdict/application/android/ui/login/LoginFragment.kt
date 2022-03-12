@@ -17,7 +17,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import io.brewdict.application.android.R
 import io.brewdict.application.android.databinding.FragmentLoginBinding
-import io.brewdict.application.android.models.LoggedInUser
+import io.brewdict.application.api_consumption.models.LoggedInUser
 
 class LoginFragment : Fragment() {
     lateinit var txt_user: EditText
@@ -115,7 +115,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun loginSuccess(model: LoggedInUser) {
-        val welcome = getString(R.string.welcome) + model.username
+        val welcome = getString(R.string.welcome) + model.user.username
 
         //TODO: Perform successful login sequence
 

@@ -5,10 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.brewdict.application.android.R
-import io.brewdict.application.android.Result
-import io.brewdict.application.android.models.LoginRepository
+import io.brewdict.application.api_consumption.Result
+import io.brewdict.application.api_consumption.AuthenticatedAPI
 
-class LoginViewModel(private val repo: LoginRepository) : ViewModel() {
+class LoginViewModel(private val api: AuthenticatedAPI) : ViewModel() {
 
     private val _loginForm = MutableLiveData<LoginFormState>()
     val loginFormState: LiveData<LoginFormState> = _loginForm
@@ -17,7 +17,7 @@ class LoginViewModel(private val repo: LoginRepository) : ViewModel() {
     val loginResult: LiveData<LoginResult> = _loginResult
 
     fun login(identity: String, password: String){
-        var result = repo.login(identity, password);
+        val result = api.login(identity, password)
 
         if (result is Result.Success) _loginResult.value = LoginResult(success = result.data)
         else _loginResult.value = LoginResult(error = R.string.login_failed)

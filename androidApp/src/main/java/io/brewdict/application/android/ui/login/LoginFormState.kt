@@ -5,3 +5,4 @@ data class LoginFormState(
     val passwordError: Int? = null,
     val isDataValid: Boolean = false,
 )
+
