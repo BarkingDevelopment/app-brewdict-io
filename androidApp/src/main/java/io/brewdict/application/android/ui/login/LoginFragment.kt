@@ -1,5 +1,6 @@
 package io.brewdict.application.android.ui.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,6 +16,7 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import io.brewdict.application.android.DashboardActivity
 import io.brewdict.application.android.R
 import io.brewdict.application.android.databinding.FragmentLoginBinding
 import io.brewdict.application.api_consumption.models.LoggedInUser
@@ -121,6 +123,8 @@ class LoginFragment : Fragment() {
 
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
+
+        startActivity(Intent(activity, DashboardActivity::class.java))
     }
 
     private fun loginFail(@StringRes errorString: Int){
