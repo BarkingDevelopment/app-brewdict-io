@@ -15,8 +15,10 @@ class MainActivity : AppCompatActivity() {
     lateinit var tabLayout: TabLayout
     lateinit var viewPager: ViewPager2
 
-    private var tabHeadings: Array<String> = arrayOf("Login", "Register")
-    private var fragments: Array<Fragment> = arrayOf(LoginFragment(), RegisterFragment())
+    private var tabs: Map<String, Fragment> = mapOf(
+        "Login" to LoginFragment(),
+        "Register" to RegisterFragment()
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,12 +27,12 @@ class MainActivity : AppCompatActivity() {
         tabLayout = findViewById(R.id.tabLayout)
         viewPager = findViewById(R.id.viewPager)
 
-        var adapter = ViewPagerAdapter(supportFragmentManager, lifecycle, fragments)
+        val adapter = ViewPagerAdapter(supportFragmentManager, lifecycle, tabs.values)
         tabLayout.tabGravity = TabLayout.GRAVITY_FILL
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = tabHeadings[position]
+            tab.text = tabs.keys.elementAt(position)
         }.attach()
     }
 }
