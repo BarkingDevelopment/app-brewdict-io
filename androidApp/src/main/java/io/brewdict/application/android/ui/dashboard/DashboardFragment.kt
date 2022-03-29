@@ -5,8 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import io.brewdict.application.android.R
 import io.brewdict.application.android.databinding.FragmentDashboardBinding
 
 class DashboardFragment : Fragment() {
@@ -25,18 +30,31 @@ class DashboardFragment : Fragment() {
         val dashboardViewModel =
             ViewModelProvider(this).get(DashboardViewModel::class.java)
 
-        _binding = FragmentDashboardBinding.inflate(inflater, container, false)
+        _binding = DataBindingUtil.inflate<FragmentDashboardBinding>(
+            inflater,
+            R.layout.fragment_dashboard,
+            container,
+            false
+        ).apply {
+            composeView.setContent {
+                MaterialTheme {
+                    Welcome()
+                }
+            }
+        }
+
         val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
-        dashboardViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
         return root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    @Composable
+    fun Welcome() {
+        Text("Dashboard Fragment")
     }
 }

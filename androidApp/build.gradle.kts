@@ -19,6 +19,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        dataBinding = true
         compose = true
     }
     compileOptions {
@@ -52,5 +53,6 @@ dependencies {
     implementation ("androidx.compose.ui:ui-tooling:1.1.1")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
     implementation ("com.google.accompanist:accompanist-appcompat-theme:0.16.0")
+    implementation("androidx.compose.ui:ui:1.1.1")
     androidTestImplementation ("androidx.compose.ui:ui-test-junit4:1.1.1")
 }

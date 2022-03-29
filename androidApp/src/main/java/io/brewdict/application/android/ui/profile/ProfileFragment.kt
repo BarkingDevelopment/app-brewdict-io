@@ -26,7 +26,19 @@ class ProfileFragment : Fragment() {
         val notificationsViewModel =
             ViewModelProvider(this).get(ProfileViewModel::class.java)
 
-        _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        _binding = DataBindingUtil.inflate<FragmentProfileBinding>(
+            inflater,
+            R.layout.fragment_profile,
+            container,
+            false
+        ).apply {
+            composeView.setContent {
+                MaterialTheme {
+                    LayoutProfile()
+                }
+            }
+        }
+
         val root: View = binding.root
 
         val textView: TextView = binding.textNotifications
