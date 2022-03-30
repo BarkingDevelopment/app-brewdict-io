@@ -1,7 +1,7 @@
 package io.brewdict.application.api_consumption
 
 import io.brewdict.application.api_consumption.models.LoggedInUser
-import io.brewdict.application.api_consumption.models.Token
+import io.brewdict.application.api_consumption.models.User
 import io.brewdict.application.api_consumption.response.LoginResponse
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -10,19 +10,41 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import java.io.IOException
 
-class AuthenticationEndpoint(val api: API, val path: String) : Endpoint{
+class AuthenticationEndpoint(val api: API, private val loginPath: String, private val registerPath: String?) : Endpoint{
+    fun register(user: User, password: String): Result<LoggedInUser> {
+        var result: Result<LoggedInUser>
+
+        runBlocking {
+            result = try {
+                val response: LoginResponse = api.client.post {
+                    url(api.host + "/" + registerPath)
+                    parameter("username", user.username)
+                    parameter("email", user.email)
+                    parameter("password", password) //TODO: Hash this before sending.
+                    parameter("password_confirmation", password) //TODO: Hash this before sending.
+                }
+
+                Result.Success(LoggedInUser(response.data.attributes, response.related.tokenObject.data.attributes))
+            } catch (e: Throwable) {
+                Result.Error(IOException("Error logging in:", e))
+            }
+        }
+
+        return result
+    }
+
     fun emailLogin(email: String, password: String): Result<LoggedInUser> {
         var result: Result<LoggedInUser>
 
         runBlocking {
             result = try {
-                val user: LoggedInUser = api.client.post {
-                    url(api.host + "/" + path)
+                val response: LoginResponse = api.client.post {
+                    url(api.host + "/" + loginPath)
                     parameter("email", email)
                     parameter("password", password) //TODO: Hash this before sending.
                 }
 
-                Result.Success(user)
+                Result.Success(LoggedInUser(response.data.attributes, response.related.tokenObject.data.attributes))
             } catch (e: Throwable) {
                 Result.Error(IOException("Error logging in:", e))
             }
@@ -37,7 +59,7 @@ class AuthenticationEndpoint(val api: API, val path: String) : Endpoint{
         runBlocking {
             result = try {
                 val response: LoginResponse = api.client.post {
-                    url(api.host + "/" + path)
+                    url(api.host + "/" + loginPath)
                     parameter("username", username)
                     parameter("password", password) //TODO: Hash this before sending.
                 }

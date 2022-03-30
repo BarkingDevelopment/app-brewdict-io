@@ -10,7 +10,10 @@
 
     <!-- Form Prompts  -->
     <string name="prompt_identity">Email or Username</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
+    <string name="prompt_retype_password">Re-type Password</string>
 
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
