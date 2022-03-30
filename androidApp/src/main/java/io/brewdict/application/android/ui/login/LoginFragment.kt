@@ -2,17 +2,28 @@ package io.brewdict.application.android.ui.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -22,11 +33,6 @@ import io.brewdict.application.android.databinding.FragmentLoginBinding
 import io.brewdict.application.api_consumption.models.LoggedInUser
 
 class LoginFragment : Fragment() {
-    lateinit var txt_user: EditText
-    lateinit var txt_password: EditText
-    lateinit var btn_login: Button
-    lateinit var bar_loading: ProgressBar
-
     private lateinit var loginViewModel: LoginViewModel
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
@@ -35,19 +41,29 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentLoginBinding.inflate(inflater, container, false)
-        return binding.root
+        _binding = DataBindingUtil.inflate<FragmentLoginBinding>(
+            inflater,
+            R.layout.fragment_login,
+            container,
+            false
+        ).apply {
+            composeView.setContent {
+                MaterialTheme {
+                    Layout()
+                }
+            }
+        }
+
+        val root: View = binding.root
+
+        return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory()).get(LoginViewModel::class.java)
 
-        txt_user = binding.username
-        txt_password = binding.password
-        btn_login = binding.login
-        bar_loading = binding.loading
-
+        /*
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
         Observer { loginFormState ->
             if (loginFormState == null) {
@@ -63,21 +79,22 @@ class LoginFragment : Fragment() {
                 txt_password.error = getString(it)
             }
         })
+         */
 
         loginViewModel.loginResult.observe(viewLifecycleOwner,
-        Observer { loginResult ->
-            loginResult ?: return@Observer
-            bar_loading.visibility = View.GONE
+        Observer { result ->
+            result ?: return@Observer
 
-            loginResult.success?.let{
-                loginSuccess(it)
+            result.success?.let{
+                success(it)
             }
 
-            loginResult.error?.let {
-                loginFail(it)
+            result.error?.let {
+                fail(it)
             }
         })
 
+        /*
         val afterTextChangedListener = object : TextWatcher{
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
                 // Ignore
@@ -98,7 +115,7 @@ class LoginFragment : Fragment() {
         txt_user.addTextChangedListener(afterTextChangedListener)
         txt_password.addTextChangedListener(afterTextChangedListener)
         txt_password.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE){
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 loginViewModel.login(
                     identity = txt_user.text.toString(),
                     password = txt_password.text.toString()
@@ -106,17 +123,10 @@ class LoginFragment : Fragment() {
             }
             false
         }
-
-        btn_login.setOnClickListener{
-            bar_loading.visibility = View.VISIBLE
-            loginViewModel.login(
-                identity = txt_user.text.toString(),
-                password = txt_password.text.toString()
-            )
-        }
+         */
     }
 
-    private fun loginSuccess(model: LoggedInUser) {
+    private fun success(model: LoggedInUser) {
         val welcome = getString(R.string.welcome) + model.user.username
 
         //TODO: Perform successful login sequence
@@ -127,7 +137,7 @@ class LoginFragment : Fragment() {
         startActivity(Intent(activity, DashboardActivity::class.java))
     }
 
-    private fun loginFail(@StringRes errorString: Int){
+    private fun fail(@StringRes errorString: Int){
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
     }
@@ -136,4 +146,99 @@ class LoginFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    // Jetpack Compose UI
+    // TODO: Align colours.
+
+    @Composable
+    fun LoginForm(){
+        val identity = remember { mutableStateOf(TextFieldValue()) }
+        val password = remember { mutableStateOf(TextFieldValue()) }
+
+        Column (
+        ){
+            Row {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+
+                    OutlinedTextField(
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_person_24),
+                                contentDescription = null,// decorative element
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                text = getString(R.string.prompt_identity),
+                                style = TextStyle(
+                                    fontSize = 18.sp,
+                                    color = Color.LightGray
+                                )
+                            )
+                        },
+                        value = identity.value,
+                        onValueChange = { identity.value = it }
+                    )
+
+                    OutlinedTextField(
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_vpn_key_24),
+                                contentDescription = null,// decorative element
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                text = getString(R.string.prompt_password),
+                                style = TextStyle(
+                                    fontSize = 18.sp,
+                                    color = Color.LightGray
+                                )
+                            )
+                        },
+                        value = password.value,
+                        onValueChange = { password.value = it }
+                    )
+
+                    OutlinedButton(
+                        // TODO: Add button functionality.
+                        onClick = {
+                            loginViewModel.login(
+                                identity = identity.value.text,
+                                password = password.value.text
+                            )
+                        }
+                    ) {
+                        Text(getString(R.string.action_login))
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun Layout(){
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            LoginForm()
+        }
+    }
+
+    // Previews
+    @Preview
+    @Composable
+    fun LoginFormPreview(){
+        LoginForm()
+    }
+
+    @Preview
+    @Composable
+    fun LayoutPreview(){
+
+    }
+
 }

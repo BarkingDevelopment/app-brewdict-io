@@ -9,7 +9,7 @@
     <string name="title_profile">Profile</string>
 
     <!-- Form Prompts  -->
-    <string name="prompt_email">Email</string>
+    <string name="prompt_identity">Email or Username</string>
     <string name="prompt_password">Password</string>
 
     <string name="invalid_username">Not a valid username</string>
