@@ -105,34 +105,16 @@ class ProfileFragment : Fragment() {
 
     @Composable
     fun ProfileInlineCard(user: User, modifier: Modifier?){
-        modifier?.let {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = it
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier ?: Modifier
+        ) {
+            ProfileAvatar(user)
+            Column (
+                modifier = Modifier
+                    .padding(16.dp, 0.dp)
             ) {
-                ProfileAvatar(user)
-                Column (
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp)
-                ) {
-                    Text (
-                        text = "@" + user.username,
-                        fontSize = 24.sp,
-                    )
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun ProfileCard(user: User, modifier: Modifier?){
-        modifier?.let {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = it
-            ) {
-                ProfileAvatar(user)
-                Text(
+                Text (
                     text = "@" + user.username,
                     fontSize = 24.sp,
                 )
@@ -141,12 +123,25 @@ class ProfileFragment : Fragment() {
     }
 
     @Composable
+    fun ProfileCard(user: User, modifier: Modifier?){
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier ?: Modifier
+        ) {
+            ProfileAvatar(user)
+            Text(
+                text = "@" + user.username,
+                fontSize = 24.sp,
+            )
+        }
+    }
+
+    @Composable
     fun ResetPasswordForm(){
         val newPassword = remember { mutableStateOf(TextFieldValue()) }
         val retypeNewPassword = remember { mutableStateOf(TextFieldValue()) }
 
-        Column (
-        ){
+        Column{
             Row(
                 modifier = Modifier
                     .padding(0.dp, 10.dp)
