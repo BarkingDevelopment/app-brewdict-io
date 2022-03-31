@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 // TODO Align with API outputs.
 @Serializable
 data class LoggedInUser(
-    @SerialName("data") val user: User,
-    @SerialName("relationship") val token: Token,
+    @SerialName("user") val user: User,
+    @SerialName("token") val token: String,
 )

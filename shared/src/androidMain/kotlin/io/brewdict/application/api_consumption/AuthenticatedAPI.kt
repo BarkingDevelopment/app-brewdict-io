@@ -50,7 +50,7 @@ abstract class AuthenticatedAPI(host: String, loginPath: String, registrationPat
                 bearer {
                     loadTokens {
                         BearerTokens(
-                            accessToken = user.token.accessToken,
+                            accessToken = user.token,
                             refreshToken = ""
                         )
                     }
