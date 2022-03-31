@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import io.brewdict.application.android.R
 import io.brewdict.application.android.databinding.FragmentFermentationsBinding
 
 class FermentationsFragment : Fragment() {
@@ -25,18 +28,31 @@ class FermentationsFragment : Fragment() {
         val homeViewModel =
             ViewModelProvider(this).get(FermentationViewModel::class.java)
 
-        _binding = FragmentFermentationsBinding.inflate(inflater, container, false)
+        _binding = DataBindingUtil.inflate<FragmentFermentationsBinding>(
+            inflater,
+            R.layout.fragment_fermentations,
+            container,
+            false
+        ).apply {
+            composeView.setContent {
+                MaterialTheme {
+                    Layout()
+                }
+            }
+        }
+
         val root: View = binding.root
 
-        val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
         return root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    @Composable
+    fun Layout(){
+
     }
 }

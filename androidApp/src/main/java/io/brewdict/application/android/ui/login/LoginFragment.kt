@@ -129,8 +129,6 @@ class LoginFragment : Fragment() {
     private fun success(model: LoggedInUser) {
         val welcome = getString(R.string.welcome) + model.user.username
 
-        //TODO: Perform successful login sequence
-
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
 
@@ -238,7 +236,7 @@ class LoginFragment : Fragment() {
     @Preview
     @Composable
     fun LayoutPreview(){
-
+        Layout()
     }
 
 }
