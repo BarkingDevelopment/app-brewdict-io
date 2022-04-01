@@ -1,15 +1,12 @@
 package io.brewdict.application.api_consumption
 
-import io.brewdict.application.api_consumption.response.Model
+import io.brewdict.application.api_consumption.models.Model
 
 abstract class CRUDEndpoint<T : Model> (
     val api: API,
     val route: String,
+    val type: String
 ) : Endpoint {
-    init {
-        api.addEndpoint(this)
-    }
-
     open suspend fun index(): Result<List<T>>{
         throw NotImplementedError()
     }
@@ -22,7 +19,7 @@ abstract class CRUDEndpoint<T : Model> (
         throw NotImplementedError()
     }
 
-    open suspend fun update (id: Int, model: T): Result<T>{
+    open suspend fun update (id: Int?, model: T): Result<T>{
         throw NotImplementedError()
     }
 

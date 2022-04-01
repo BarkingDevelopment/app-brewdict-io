@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import java.io.IOException
 
-class AuthenticationEndpoint(val api: API, private val loginPath: String, private val registerPath: String?) : Endpoint{
+class AuthenticationEndpoint(val api: API, private val loginPath: String, private val registerPath: String?) : Endpoint {
     fun register(user: User, password: String): Result<LoggedInUser> {
         var result: Result<LoggedInUser>
 

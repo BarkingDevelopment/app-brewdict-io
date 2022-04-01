@@ -5,6 +5,6 @@ import io.brewdict.application.api_consumption.models.User
 
 class UserPreviewParameterProvider : PreviewParameterProvider<User> {
     override val values = sequenceOf(
-        User("", "mlbarker")
+        User(1, "hello@maxbarker.uk","mlbarker")
     )
 }

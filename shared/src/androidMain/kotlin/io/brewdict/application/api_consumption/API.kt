@@ -1,5 +1,6 @@
 package io.brewdict.application.api_consumption
 
+import io.brewdict.application.api_consumption.models.Model
 import io.ktor.client.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
@@ -9,7 +10,7 @@ import io.ktor.client.features.logging.*
 abstract class API(
     val host: String
 ) {
-    var endpoints: ArrayList<Endpoint> = ArrayList()
+    var endpoints: HashMap<String, CRUDEndpoint<*>> = HashMap()
 
     protected val unauthClient : HttpClient = HttpClient {
         install(JsonFeature){
@@ -34,7 +35,7 @@ abstract class API(
 
     var client : HttpClient = unauthClient
 
-    fun addEndpoint(endpoint: Endpoint){
-        endpoints.add(endpoint)
+    fun addEndpoint(endpoint: CRUDEndpoint<*>){
+        endpoints[endpoint.type] = endpoint
     }
 }
