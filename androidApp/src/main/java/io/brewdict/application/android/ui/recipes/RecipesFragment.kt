@@ -8,23 +8,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -52,7 +46,6 @@ class RecipesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this).get(RecipesViewModel::class.java)
-        viewModel.refresh()
 
         _binding = DataBindingUtil.inflate<FragmentRecipesBinding>(
             inflater,
@@ -62,7 +55,7 @@ class RecipesFragment : Fragment() {
         ).apply {
             composeView.setContent {
                 MaterialTheme {
-                    Layout()
+                    RecipesLayout()
                 }
             }
         }
@@ -74,6 +67,136 @@ class RecipesFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+
+    @Composable
+    fun Sorting(){
+        val items = listOf("ABC", "STYLE", "ABV", "IBU", "SRM")
+        val expanded = remember { mutableStateOf(false) }
+        val selectedIndex = remember { mutableStateOf(0) }
+
+        val ascending = remember { mutableStateOf(true) }
+        val sortOrderIcon = remember { mutableStateOf(R.drawable.ic_baseline_arrow_upward_24) }
+
+        Row (
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ){
+            Box {
+                Column(
+                ) {
+                    Button(
+                        onClick = {
+                            expanded.value = true
+                        },
+                        content = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                            ) {
+                                Text(
+                                    text = items[selectedIndex.value]
+                                )
+
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_baseline_arrow_drop_down_24),
+                                    contentDescription = null
+                                )
+                            }
+                        },
+                    )
+
+                    DropdownMenu(
+                        expanded = expanded.value,
+                        onDismissRequest = { expanded.value = false },
+                        /*
+                        modifier = Modifier
+                            .background( Color.White, )
+                            .border(BorderStroke(width = 1.dp,color = Color.Red))
+                            .width(200.dp),
+
+                         */
+                    ) {
+                        items.forEachIndexed { index, s ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    selectedIndex.value = index
+                                    expanded.value = false
+
+                                    when(index){
+                                        0 -> viewModel.sortUsing({name}, ascending.value)
+                                        1 -> viewModel.sortUsing({style.name}, ascending.value)
+                                        2 -> viewModel.sortUsing({abv}, ascending.value)
+                                        3 -> viewModel.sortUsing({ibu}, ascending.value)
+                                        4 -> viewModel.sortUsing({srm}, ascending.value)
+                                    }
+                                }
+                            ) {
+                                Text(
+                                    text = s
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Button(
+                onClick = {
+                    ascending.value = !ascending.value
+                    sortOrderIcon.value = if(ascending.value) R.drawable.ic_baseline_arrow_upward_24
+                        else R.drawable.ic_baseline_arrow_downward_24
+
+                    when(selectedIndex.value){
+                        0 -> viewModel.sortUsing({name}, ascending.value)
+                        1 -> viewModel.sortUsing({style.name}, ascending.value)
+                        2 -> viewModel.sortUsing({abv}, ascending.value)
+                        3 -> viewModel.sortUsing({ibu}, ascending.value)
+                        4 -> viewModel.sortUsing({srm}, ascending.value)
+                    }
+                },
+                content = {
+                    Icon(
+                        painter = painterResource(sortOrderIcon.value),
+                        contentDescription = null,
+                    )
+                }
+            )
+        }
+    }
+
+    @Composable
+    fun SearchBar(){
+        val searchText = remember { mutableStateOf(TextFieldValue()) }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .height(IntrinsicSize.Min)
+                .fillMaxWidth()
+        ) {
+            OutlinedTextField (
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_search_24),
+                        contentDescription = null,// decorative element
+                    )
+                },
+                label = {
+                    Text("Filter by:")
+                },
+                singleLine = true,
+                value = searchText.value,
+                onValueChange = { searchText.value = it },
+                modifier = Modifier
+                    .width(200.dp)
+                    .padding(end = 8.dp)
+            )
+
+            Sorting()
+        }
     }
 
     @Composable
@@ -128,19 +251,31 @@ class RecipesFragment : Fragment() {
     }
 
     @Composable
-    fun Layout(){
+    fun RecipesLayout(){
+        val recipes: List<Recipe> by viewModel.recipes.observeAsState(listOf())
         val isRefreshing by viewModel.isRefreshing.collectAsState()
-        Column() {
+
+        Column {
+            SearchBar()
+
+            Divider(
+                color = Color.Gray,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                thickness = 1.dp
+            )
+
             SwipeRefresh(
                 state = rememberSwipeRefreshState(isRefreshing),
                 onRefresh = {
-                    viewModel.refresh()
+                    //FIXME: Refresh doesn't automatically sort by current sorting reqs.
+                    viewModel.refreshRecipes()
                 },
             ) {
                 LazyColumn(
                     content = {
                         items(
-                            items = viewModel.recipes,
+                            items = recipes,
                             itemContent = {
                                 RecipeCard(it)
                             }
@@ -155,5 +290,17 @@ class RecipesFragment : Fragment() {
     @Composable
     fun RecipeCardPreview(@PreviewParameter(SampleRecipeProvider::class) recipe: Recipe){
         RecipeCard(recipe = recipe)
+    }
+
+    @Preview
+    @Composable
+    fun SortingPreview(){
+        Sorting()
+    }
+
+    @Preview
+    @Composable
+    fun SearchBarPreview(){
+        SearchBar()
     }
 }
