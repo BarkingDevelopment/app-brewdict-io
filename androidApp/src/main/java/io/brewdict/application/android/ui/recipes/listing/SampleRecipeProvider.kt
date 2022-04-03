@@ -1,4 +1,4 @@
-package io.brewdict.application.android.ui.recipes
+package io.brewdict.application.android.ui.recipes.listing
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.brewdict.application.api_consumption.models.User

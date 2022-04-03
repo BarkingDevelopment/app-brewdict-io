@@ -1,13 +1,15 @@
-package io.brewdict.application.android.ui.recipes
+package io.brewdict.application.android.ui.recipes.listing
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -22,9 +24,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.navigation.navOptions
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.brewdict.application.android.R
@@ -40,12 +45,18 @@ class RecipesFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewModel = ViewModelProvider(this).get(RecipesViewModel::class.java)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(RecipesViewModel::class.java)
+
 
         _binding = DataBindingUtil.inflate<FragmentRecipesBinding>(
             inflater,
@@ -69,10 +80,54 @@ class RecipesFragment : Fragment() {
         _binding = null
     }
 
+    @Composable
+    fun MultiToggleButton(options: List<String>, default: String, onSelectionChange: (String) -> Unit) {
+        var selectedOption by remember { mutableStateOf(default) }
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            options.forEach { text ->
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            end = 8.dp,
+                        ),
+                ) {
+                    Text(
+                        text = text,
+                        color = Color.White,
+                        modifier = Modifier
+                            .clip(
+                                shape = RoundedCornerShape(
+                                    size = 12.dp,
+                                ),
+                            )
+                            .clickable {
+                                selectedOption = text
+                                onSelectionChange(text)
+                            }
+                            .background(
+                                // FIXME Replace colours.
+                                if (text == selectedOption) {
+                                    Color.Magenta
+                                } else {
+                                    Color.LightGray
+                                }
+                            )
+                            .padding(
+                                vertical = 16.dp,
+                                horizontal = 16.dp,
+                            ),
+                    )
+                }
+            }
+        }
+    }
 
     @Composable
     fun Sorting(){
-        val items = listOf("ABC", "STYLE", "ABV", "IBU", "SRM")
+        val items = RecipeSortingField.values()
         val expanded = remember { mutableStateOf(false) }
         val selectedIndex = remember { mutableStateOf(0) }
 
@@ -95,7 +150,7 @@ class RecipesFragment : Fragment() {
                                 horizontalArrangement = Arrangement.SpaceEvenly,
                             ) {
                                 Text(
-                                    text = items[selectedIndex.value]
+                                    text = items[selectedIndex.value].acronym
                                 )
 
                                 Icon(
@@ -123,17 +178,13 @@ class RecipesFragment : Fragment() {
                                     selectedIndex.value = index
                                     expanded.value = false
 
-                                    when(index){
-                                        0 -> viewModel.sortUsing({name}, ascending.value)
-                                        1 -> viewModel.sortUsing({style.name}, ascending.value)
-                                        2 -> viewModel.sortUsing({abv}, ascending.value)
-                                        3 -> viewModel.sortUsing({ibu}, ascending.value)
-                                        4 -> viewModel.sortUsing({srm}, ascending.value)
-                                    }
+                                    viewModel.sortingField = items[index]
+
+                                    viewModel.updateRecipes()
                                 }
                             ) {
                                 Text(
-                                    text = s
+                                    text = s.acronym
                                 )
                             }
                         }
@@ -147,13 +198,9 @@ class RecipesFragment : Fragment() {
                     sortOrderIcon.value = if(ascending.value) R.drawable.ic_baseline_arrow_upward_24
                         else R.drawable.ic_baseline_arrow_downward_24
 
-                    when(selectedIndex.value){
-                        0 -> viewModel.sortUsing({name}, ascending.value)
-                        1 -> viewModel.sortUsing({style.name}, ascending.value)
-                        2 -> viewModel.sortUsing({abv}, ascending.value)
-                        3 -> viewModel.sortUsing({ibu}, ascending.value)
-                        4 -> viewModel.sortUsing({srm}, ascending.value)
-                    }
+                    viewModel.isSortingAscending= ascending.value
+
+                    viewModel.updateRecipes()
                 },
                 content = {
                     Icon(
@@ -171,7 +218,6 @@ class RecipesFragment : Fragment() {
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .padding(horizontal = 8.dp, vertical = 8.dp)
                 .height(IntrinsicSize.Min)
@@ -181,7 +227,7 @@ class RecipesFragment : Fragment() {
                 leadingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_baseline_search_24),
-                        contentDescription = null,// decorative element
+                        contentDescription = null,
                     )
                 },
                 label = {
@@ -189,9 +235,15 @@ class RecipesFragment : Fragment() {
                 },
                 singleLine = true,
                 value = searchText.value,
-                onValueChange = { searchText.value = it },
+                onValueChange = {
+                    searchText.value = it
+
+                    //FIXME Filtering does not respect sorting.
+                    viewModel.filterString = searchText.value.text
+                    viewModel.updateRecipes()
+                },
                 modifier = Modifier
-                    .width(200.dp)
+                    .weight(1.0f)
                     .padding(end = 8.dp)
             )
 
@@ -255,7 +307,45 @@ class RecipesFragment : Fragment() {
         val recipes: List<Recipe> by viewModel.recipes.observeAsState(listOf())
         val isRefreshing by viewModel.isRefreshing.collectAsState()
 
-        Column {
+        Column (
+            modifier = Modifier
+                .padding(all = 8.dp)
+        ){
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                MultiToggleButton(listOf("Public Recipes", "Your Recipes"), "Public Recipes") {
+                    when(it){
+                        "Public Recipes" -> viewModel.showPublicRecipes = true
+                        "Your Recipes" -> viewModel.showPublicRecipes = false
+                        else -> throw IllegalArgumentException("Ruh Roh Raggy. Wtf did you do.")
+                    }
+
+                    viewModel.updateRecipes()
+                }
+
+                Icon(
+                    painter = painterResource(R.drawable.ic_baseline_add_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(
+                            shape = CircleShape,
+                        )
+                        .clickable {
+                        }
+                        .background(
+                            // FIXME Replace colours.
+                            Color.Magenta
+                        )
+                        .padding(
+                            vertical = 12.dp,
+                            horizontal = 12.dp,
+                        )
+                )
+            }
+
+
             SearchBar()
 
             Divider(
@@ -301,6 +391,46 @@ class RecipesFragment : Fragment() {
     @Preview
     @Composable
     fun SearchBarPreview(){
-        SearchBar()
+        Column (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 8.dp)
+        ) {
+            Row {
+                MultiToggleButton(listOf("Public Recipes", "Your Recipes"), "Public Recipes") {
+                    when (it) {
+                        "Public Recipes" -> viewModel.showPublicRecipes = true
+                        "Your Recipes" -> viewModel.showPublicRecipes = false
+                        else -> throw IllegalArgumentException("Ruh Roh Raggy. Wtf did you do.")
+                    }
+
+                    viewModel.updateRecipes()
+                }
+
+                Icon(
+                    painter = painterResource(R.drawable.ic_baseline_add_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(
+                            shape = CircleShape,
+                        )
+                        .clickable {
+
+                        }
+                        .background(
+                            // FIXME Replace colours.
+                            Color.Magenta
+                        )
+                        .padding(
+                            vertical = 12.dp,
+                            horizontal = 12.dp,
+                        )
+
+                )
+            }
+
+
+            SearchBar()
+        }
     }
 }
