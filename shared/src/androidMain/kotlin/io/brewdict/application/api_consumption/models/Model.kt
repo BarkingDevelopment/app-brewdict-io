@@ -1,3 +1,5 @@
 package io.brewdict.application.api_consumption.models
 
-interface Model
+import java.io.Serializable
+
+interface Model : Serializable

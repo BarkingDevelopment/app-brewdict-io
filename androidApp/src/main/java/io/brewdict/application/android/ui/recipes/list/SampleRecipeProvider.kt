@@ -1,4 +1,4 @@
-package io.brewdict.application.android.ui.recipes.listing
+package io.brewdict.application.android.ui.recipes.list
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.brewdict.application.api_consumption.models.User
@@ -37,7 +37,7 @@ class SampleRecipeProvider: PreviewParameterProvider<Recipe> {
                 minIBU = 20f,
                 maxIBU = 120f,
                 minSRM = 8f,
-                maxSRM = 10f,
+                maxSRM = 30f,
                 notes = "This is an example style!"
             ),
             abv = 5.0f,

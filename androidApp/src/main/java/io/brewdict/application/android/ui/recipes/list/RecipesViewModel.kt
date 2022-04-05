@@ -1,4 +1,4 @@
-package io.brewdict.application.android.ui.recipes.listing
+package io.brewdict.application.android.ui.recipes.list
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class RecipesViewModel : ViewModel() {
     var showPublicRecipes: Boolean = true
-    var sortingField: RecipeSortingField = RecipeSortingField.NAME
+    var sortingFieldEnum: RecipeSortingFieldEnum = RecipeSortingFieldEnum.NAME
     var isSortingAscending: Boolean = true
     var filterString: String = ""
 
@@ -62,12 +62,12 @@ class RecipesViewModel : ViewModel() {
     }
 
     private fun sortRecipes(recipes: List<Recipe>): List<Recipe>{
-        val sortedRecipes = when(sortingField){
-            RecipeSortingField.NAME -> sortUsing(recipes, {name}, isSortingAscending)
-            RecipeSortingField.STYLE -> sortUsing(recipes, {style.name}, isSortingAscending)
-            RecipeSortingField.ABV -> sortUsing(recipes, {abv}, isSortingAscending)
-            RecipeSortingField.IBU -> sortUsing(recipes, {ibu}, isSortingAscending)
-            RecipeSortingField.SRM -> sortUsing(recipes, {srm}, isSortingAscending)
+        val sortedRecipes = when(sortingFieldEnum){
+            RecipeSortingFieldEnum.NAME -> sortUsing(recipes, {name}, isSortingAscending)
+            RecipeSortingFieldEnum.STYLE -> sortUsing(recipes, {style.name}, isSortingAscending)
+            RecipeSortingFieldEnum.ABV -> sortUsing(recipes, {abv}, isSortingAscending)
+            RecipeSortingFieldEnum.IBU -> sortUsing(recipes, {ibu}, isSortingAscending)
+            RecipeSortingFieldEnum.SRM -> sortUsing(recipes, {srm}, isSortingAscending)
         }
 
         return sortedRecipes

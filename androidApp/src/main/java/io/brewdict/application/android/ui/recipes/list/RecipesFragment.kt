@@ -1,4 +1,4 @@
-package io.brewdict.application.android.ui.recipes.listing
+package io.brewdict.application.android.ui.recipes.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -29,11 +29,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.navigation.navOptions
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.brewdict.application.android.R
 import io.brewdict.application.android.databinding.FragmentRecipesBinding
+import io.brewdict.application.android.ui.recipes.RecipeComponents.ShortRecipeCard
+import io.brewdict.application.android.utils.ComponentsUI.MultiToggleButton
 import io.brewdict.application.apis.brewdict.models.Recipe
 
 class RecipesFragment : Fragment() {
@@ -66,7 +67,7 @@ class RecipesFragment : Fragment() {
         ).apply {
             composeView.setContent {
                 MaterialTheme {
-                    RecipesLayout()
+                    Content()
                 }
             }
         }
@@ -80,54 +81,22 @@ class RecipesFragment : Fragment() {
         _binding = null
     }
 
-    @Composable
-    fun MultiToggleButton(options: List<String>, default: String, onSelectionChange: (String) -> Unit) {
-        var selectedOption by remember { mutableStateOf(default) }
+    fun createRecipe(){
+        view?.findNavController()?.navigate(
+            R.id.action_new_recipe
+        )
+    }
 
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            options.forEach { text ->
-                Column(
-                    modifier = Modifier
-                        .padding(
-                            end = 8.dp,
-                        ),
-                ) {
-                    Text(
-                        text = text,
-                        color = Color.White,
-                        modifier = Modifier
-                            .clip(
-                                shape = RoundedCornerShape(
-                                    size = 12.dp,
-                                ),
-                            )
-                            .clickable {
-                                selectedOption = text
-                                onSelectionChange(text)
-                            }
-                            .background(
-                                // FIXME Replace colours.
-                                if (text == selectedOption) {
-                                    Color.Magenta
-                                } else {
-                                    Color.LightGray
-                                }
-                            )
-                            .padding(
-                                vertical = 16.dp,
-                                horizontal = 16.dp,
-                            ),
-                    )
-                }
-            }
-        }
+    fun viewRecipe(recipe: Recipe){
+        view?.findNavController()?.navigate(
+            R.id.action_view_recipe,
+            bundleOf( "recipe" to recipe)
+        )
     }
 
     @Composable
     fun Sorting(){
-        val items = RecipeSortingField.values()
+        val items = RecipeSortingFieldEnum.values()
         val expanded = remember { mutableStateOf(false) }
         val selectedIndex = remember { mutableStateOf(0) }
 
@@ -178,7 +147,7 @@ class RecipesFragment : Fragment() {
                                     selectedIndex.value = index
                                     expanded.value = false
 
-                                    viewModel.sortingField = items[index]
+                                    viewModel.sortingFieldEnum = items[index]
 
                                     viewModel.updateRecipes()
                                 }
@@ -252,58 +221,7 @@ class RecipesFragment : Fragment() {
     }
 
     @Composable
-    fun RecipeCard(recipe: Recipe){
-        Row (
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .padding(horizontal = 8.dp, vertical = 8.dp)
-                .fillMaxWidth()
-        ) {
-            Column() {
-                Text(
-                    text = recipe.name,
-                    fontWeight = FontWeight.Bold
-                )
-                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                    Text(recipe.style.name, style = MaterialTheme.typography.body2)
-                }
-            }
-
-            Column(
-                modifier = Modifier
-                    .height(IntrinsicSize.Min)
-            ) {
-                Row {
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier
-                            .padding(end = 4.dp)
-                    ) {
-                        Text(
-                            text = "${recipe.abv}%"
-                        )
-                        Text(
-                            text = "IBU: ${recipe.ibu}"
-                        )
-                    }
-                    Column() {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .width(8.dp)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(
-                                    Color(recipe.colour())
-                                )
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun RecipesLayout(){
+    fun Content(){
         val recipes: List<Recipe> by viewModel.recipes.observeAsState(listOf())
         val isRefreshing by viewModel.isRefreshing.collectAsState()
 
@@ -333,6 +251,7 @@ class RecipesFragment : Fragment() {
                             shape = CircleShape,
                         )
                         .clickable {
+                            createRecipe()
                         }
                         .background(
                             // FIXME Replace colours.
@@ -366,8 +285,10 @@ class RecipesFragment : Fragment() {
                     content = {
                         items(
                             items = recipes,
-                            itemContent = {
-                                RecipeCard(it)
+                            itemContent = { it ->
+                                ShortRecipeCard(it){
+                                    viewRecipe(it)
+                                }
                             }
                         )
                     }
@@ -379,7 +300,9 @@ class RecipesFragment : Fragment() {
     @Preview
     @Composable
     fun RecipeCardPreview(@PreviewParameter(SampleRecipeProvider::class) recipe: Recipe){
-        RecipeCard(recipe = recipe)
+        ShortRecipeCard(recipe = recipe){
+            viewRecipe(it)
+        }
     }
 
     @Preview

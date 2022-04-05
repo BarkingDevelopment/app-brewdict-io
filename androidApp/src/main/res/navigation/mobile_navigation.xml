@@ -19,13 +19,54 @@
 
     <fragment
         android:id="@+id/navigation_recipes"
-        android:name="io.brewdict.application.android.ui.recipes.RecipesFragment"
+        android:name="io.brewdict.application.android.ui.recipes.list.RecipesFragment"
         android:label="@string/title_recipes"
-        tools:layout="@layout/fragment_recipes" />
+        tools:layout="@layout/fragment_recipes" >
+        <action
+            android:id="@+id/action_new_recipe"
+            app:destination="@id/navigation_edit_recipe" />
+        <action
+            android:id="@+id/action_view_recipe"
+            app:destination="@id/navigation_view_recipe" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_view_recipe"
+        android:name="io.brewdict.application.android.ui.recipes.view.RecipeFragment"
+        android:label="@string/title_recipes"
+        tools:layout="@layout/fragment_view_recipe" >
+        <argument
+            android:name="recipe"
+            app:argType="io.brewdict.application.apis.brewdict.models.Recipe" />
+        <action
+            android:id="@+id/action_edit_recipe"
+            app:destination="@id/navigation_edit_recipe" />
+        <action
+            android:id="@+id/action_create_recipe_from_inspiration"
+            app:destination="@id/navigation_edit_recipe" />
+        <action
+            android:id="@+id/action_view_inspiration"
+            app:destination="@id/navigation_view_recipe" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_edit_recipe"
+        android:name="io.brewdict.application.android.ui.recipes.edit.RecipeFragment"
+        android:label="@string/title_recipes"
+        tools:layout="@layout/fragment_edit_recipe" >
+        <argument
+            android:name="inspiration"
+            app:argType="io.brewdict.application.apis.brewdict.models.Recipe"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_save_recipe_changes"
+            app:destination="@id/navigation_recipes" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_profile"
         android:name="io.brewdict.application.android.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+    </fragment>
 </navigation>
