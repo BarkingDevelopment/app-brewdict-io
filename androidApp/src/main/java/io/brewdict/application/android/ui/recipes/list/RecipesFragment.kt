@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -19,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -46,19 +44,11 @@ class RecipesFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        viewModel = ViewModelProvider(this).get(RecipesViewModel::class.java)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-
         _binding = DataBindingUtil.inflate<FragmentRecipesBinding>(
             inflater,
             R.layout.fragment_recipes,
@@ -74,6 +64,12 @@ class RecipesFragment : Fragment() {
         val root: View = binding.root
 
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel = ViewModelProvider(this).get(RecipesViewModel::class.java)
     }
 
     override fun onDestroyView() {
@@ -96,12 +92,15 @@ class RecipesFragment : Fragment() {
 
     @Composable
     fun Sorting(){
-        val items = RecipeSortingFieldEnum.values()
         val expanded = remember { mutableStateOf(false) }
-        val selectedIndex = remember { mutableStateOf(0) }
 
-        val ascending = remember { mutableStateOf(true) }
-        val sortOrderIcon = remember { mutableStateOf(R.drawable.ic_baseline_arrow_upward_24) }
+        val items = viewModel.sortingFields
+
+        val selectedField: RecipeSortingFieldEnum by viewModel.currentSortingField.collectAsState()
+        val ascending: Boolean by viewModel.isSortingAscending.collectAsState()
+
+        val sortOrderIcon = if(ascending) R.drawable.ic_baseline_arrow_upward_24
+            else R.drawable.ic_baseline_arrow_downward_24
 
         Row (
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -119,7 +118,7 @@ class RecipesFragment : Fragment() {
                                 horizontalArrangement = Arrangement.SpaceEvenly,
                             ) {
                                 Text(
-                                    text = items[selectedIndex.value].acronym
+                                    text = selectedField.acronym
                                 )
 
                                 Icon(
@@ -144,12 +143,9 @@ class RecipesFragment : Fragment() {
                         items.forEachIndexed { index, s ->
                             DropdownMenuItem(
                                 onClick = {
-                                    selectedIndex.value = index
                                     expanded.value = false
 
-                                    viewModel.sortingFieldEnum = items[index]
-
-                                    viewModel.updateRecipes()
+                                    viewModel.changeSortingField(items[index])
                                 }
                             ) {
                                 Text(
@@ -163,17 +159,11 @@ class RecipesFragment : Fragment() {
 
             Button(
                 onClick = {
-                    ascending.value = !ascending.value
-                    sortOrderIcon.value = if(ascending.value) R.drawable.ic_baseline_arrow_upward_24
-                        else R.drawable.ic_baseline_arrow_downward_24
-
-                    viewModel.isSortingAscending= ascending.value
-
-                    viewModel.updateRecipes()
+                    viewModel.invertSortingDirection()
                 },
                 content = {
                     Icon(
-                        painter = painterResource(sortOrderIcon.value),
+                        painter = painterResource(sortOrderIcon),
                         contentDescription = null,
                     )
                 }
@@ -183,7 +173,7 @@ class RecipesFragment : Fragment() {
 
     @Composable
     fun SearchBar(){
-        val searchText = remember { mutableStateOf(TextFieldValue()) }
+        val searchText: String by viewModel.filterString.collectAsState()
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -203,13 +193,9 @@ class RecipesFragment : Fragment() {
                     Text("Filter by:")
                 },
                 singleLine = true,
-                value = searchText.value,
+                value = searchText,
                 onValueChange = {
-                    searchText.value = it
-
-                    //FIXME Filtering does not respect sorting.
-                    viewModel.filterString = searchText.value.text
-                    viewModel.updateRecipes()
+                    viewModel.updateFilterString(it)
                 },
                 modifier = Modifier
                     .weight(1.0f)
@@ -222,7 +208,7 @@ class RecipesFragment : Fragment() {
 
     @Composable
     fun Content(){
-        val recipes: List<Recipe> by viewModel.recipes.observeAsState(listOf())
+        val recipes: List<Recipe> by viewModel.values.observeAsState(listOf())
         val isRefreshing by viewModel.isRefreshing.collectAsState()
 
         Column (
@@ -235,12 +221,10 @@ class RecipesFragment : Fragment() {
             ){
                 MultiToggleButton(listOf("Public Recipes", "Your Recipes"), "Public Recipes") {
                     when(it){
-                        "Public Recipes" -> viewModel.showPublicRecipes = true
-                        "Your Recipes" -> viewModel.showPublicRecipes = false
+                        "Public Recipes" -> viewModel.toggleShowPublicRecipes(true)
+                        "Your Recipes" -> viewModel.toggleShowPublicRecipes(false)
                         else -> throw IllegalArgumentException("Ruh Roh Raggy. Wtf did you do.")
                     }
-
-                    viewModel.updateRecipes()
                 }
 
                 Icon(
@@ -277,8 +261,7 @@ class RecipesFragment : Fragment() {
             SwipeRefresh(
                 state = rememberSwipeRefreshState(isRefreshing),
                 onRefresh = {
-                    //FIXME: Refresh doesn't automatically sort by current sorting reqs.
-                    viewModel.refreshRecipes()
+                    viewModel.refreshList()
                 },
             ) {
                 LazyColumn(
@@ -322,12 +305,13 @@ class RecipesFragment : Fragment() {
             Row {
                 MultiToggleButton(listOf("Public Recipes", "Your Recipes"), "Public Recipes") {
                     when (it) {
-                        "Public Recipes" -> viewModel.showPublicRecipes = true
-                        "Your Recipes" -> viewModel.showPublicRecipes = false
+                        "Public Recipes" -> viewModel.toggleShowPublicRecipes(true)
+                        "Your Recipes" -> viewModel.toggleShowPublicRecipes(false)
                         else -> throw IllegalArgumentException("Ruh Roh Raggy. Wtf did you do.")
                     }
 
-                    viewModel.updateRecipes()
+                    // Update on change.
+                    viewModel.updateList()
                 }
 
                 Icon(
