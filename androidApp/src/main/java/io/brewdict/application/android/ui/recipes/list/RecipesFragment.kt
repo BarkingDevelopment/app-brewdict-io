@@ -221,11 +221,10 @@ class RecipesFragment : Fragment() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
-                MultiToggleButton(listOf("Public Recipes", "Your Recipes"), "Public Recipes") {
+                MultiToggleButton(RecipeOwnerMultiToggleEnum.values(), RecipeOwnerMultiToggleEnum.ALL) {
                     when(it){
-                        "Public Recipes" -> viewModel.toggleShowPublicRecipes(true)
-                        "Your Recipes" -> viewModel.toggleShowPublicRecipes(false)
-                        else -> throw IllegalArgumentException("Ruh Roh Raggy. Wtf did you do.")
+                        RecipeOwnerMultiToggleEnum.ALL -> viewModel.toggleShowPublicRecipes(true)
+                        RecipeOwnerMultiToggleEnum.PRIVATE -> viewModel.toggleShowPublicRecipes(false)
                     }
                 }
 
@@ -305,15 +304,11 @@ class RecipesFragment : Fragment() {
                 .padding(all = 8.dp)
         ) {
             Row {
-                MultiToggleButton(listOf("Public Recipes", "Your Recipes"), "Public Recipes") {
-                    when (it) {
-                        "Public Recipes" -> viewModel.toggleShowPublicRecipes(true)
-                        "Your Recipes" -> viewModel.toggleShowPublicRecipes(false)
-                        else -> throw IllegalArgumentException("Ruh Roh Raggy. Wtf did you do.")
+                MultiToggleButton(RecipeOwnerMultiToggleEnum.values(), RecipeOwnerMultiToggleEnum.ALL) {
+                    when(it){
+                        RecipeOwnerMultiToggleEnum.ALL -> viewModel.toggleShowPublicRecipes(true)
+                        RecipeOwnerMultiToggleEnum.PRIVATE -> viewModel.toggleShowPublicRecipes(false)
                     }
-
-                    // Update on change.
-                    viewModel.updateList()
                 }
 
                 Icon(

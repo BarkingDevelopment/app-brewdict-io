@@ -21,13 +21,13 @@ import io.brewdict.application.android.R
 
 object SharedComponents {
     @Composable
-    fun MultiToggleButton(options: List<String>, default: String, onSelectionChange: (String) -> Unit) {
+    fun <T : MultiToggleButtonEnum> MultiToggleButton(options: Array<T>, default: T, onSelectionChange: (T) -> Unit) {
         var selectedOption by remember { mutableStateOf(default) }
 
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            options.forEach { text ->
+            options.forEach { state ->
                 Column(
                     modifier = Modifier
                         .padding(
@@ -35,7 +35,7 @@ object SharedComponents {
                         ),
                 ) {
                     Text(
-                        text = text,
+                        text = state.string,
                         color = Color.White,
                         modifier = Modifier
                             .clip(
@@ -44,12 +44,12 @@ object SharedComponents {
                                 ),
                             )
                             .clickable {
-                                selectedOption = text
-                                onSelectionChange(text)
+                                selectedOption = state
+                                onSelectionChange(state)
                             }
                             .background(
                                 // FIXME Replace colours.
-                                if (text == selectedOption) {
+                                if (state == selectedOption) {
                                     Color.Magenta
                                 } else {
                                     Color.LightGray
