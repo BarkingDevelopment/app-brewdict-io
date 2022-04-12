@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -32,7 +31,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.brewdict.application.android.R
 import io.brewdict.application.android.databinding.FragmentRecipesBinding
 import io.brewdict.application.android.ui.recipes.RecipeComponents.ShortRecipeCard
-import io.brewdict.application.android.utils.ComponentsUI.MultiToggleButton
+import io.brewdict.application.android.utils.SharedComponents.MultiToggleButton
 import io.brewdict.application.apis.brewdict.models.Recipe
 
 class RecipesFragment : Fragment() {
@@ -90,6 +89,8 @@ class RecipesFragment : Fragment() {
         )
     }
 
+
+    // TODO: Extract to index class. SAme as StylesFragment Sorting().
     @Composable
     fun Sorting(){
         val expanded = remember { mutableStateOf(false) }
@@ -171,6 +172,7 @@ class RecipesFragment : Fragment() {
         }
     }
 
+    // TODO: Extract to index class. SAme as StylesFragment Searchbar().
     @Composable
     fun SearchBar(){
         val searchText: String by viewModel.filterString.collectAsState()

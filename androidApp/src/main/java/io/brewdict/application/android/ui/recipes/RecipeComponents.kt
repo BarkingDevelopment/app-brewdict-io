@@ -14,8 +14,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.brewdict.application.android.utils.ComponentsUI.Accordion
-import io.brewdict.application.android.utils.ComponentsUI.Range
+import io.brewdict.application.android.utils.SharedComponents.Accordion
+import io.brewdict.application.android.utils.SharedComponents.Range
 import io.brewdict.application.apis.brewdict.models.Recipe
 import io.brewdict.application.apis.brewdict.models.Style
 import kotlin.math.ceil

@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.brewdict.application.android.R
 
-object ComponentsUI {
+object SharedComponents {
     @Composable
     fun MultiToggleButton(options: List<String>, default: String, onSelectionChange: (String) -> Unit) {
         var selectedOption by remember { mutableStateOf(default) }
