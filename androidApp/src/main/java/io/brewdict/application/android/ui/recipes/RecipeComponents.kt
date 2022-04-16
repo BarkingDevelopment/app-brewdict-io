@@ -18,6 +18,8 @@ import io.brewdict.application.android.utils.SharedComponents.Accordion
 import io.brewdict.application.android.utils.SharedComponents.Range
 import io.brewdict.application.apis.brewdict.models.Recipe
 import io.brewdict.application.apis.brewdict.models.Style
+import java.text.DecimalFormat
+import java.text.NumberFormat
 import kotlin.math.ceil
 import kotlin.math.floor
 
@@ -125,7 +127,7 @@ object RecipeComponents {
                             .padding(end = 4.dp)
                     ) {
                         Text(
-                            text = "${recipe.abv}%"
+                            text = "${DecimalFormat("#0.0").format(recipe.abv)}%"
                         )
                         Text(
                             text = "IBU: ${recipe.ibu}"

@@ -40,7 +40,8 @@ class SampleRecipeProvider: PreviewParameterProvider<Recipe> {
                 maxSRM = 30f,
                 notes = "This is an example style!"
             ),
-            abv = 5.0f,
+            og = 1.05f,
+            fg = 1.01f,
             ibu = 50,
             srm = 8
         )

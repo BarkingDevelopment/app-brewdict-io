@@ -22,9 +22,11 @@
         android:name="io.brewdict.application.android.ui.recipes.list.RecipesFragment"
         android:label="@string/title_recipes"
         tools:layout="@layout/fragment_recipes" >
+        <!-- Create Recipe -->
         <action
             android:id="@+id/action_new_recipe"
             app:destination="@id/navigation_edit_recipe" />
+        <!-- View Selected Recipe -->
         <action
             android:id="@+id/action_view_recipe"
             app:destination="@id/navigation_view_recipe" />
@@ -37,30 +39,58 @@
         tools:layout="@layout/fragment_view_recipe" >
         <argument
             android:name="recipe"
-            app:argType="io.brewdict.application.apis.brewdict.models.Recipe" />
+            app:argType="io.brewdict.application.apis.brewdict.models.Recipe"
+            android:defaultValue="@null" />
+        <!-- Edit Recipe -->
         <action
             android:id="@+id/action_edit_recipe"
             app:destination="@id/navigation_edit_recipe" />
+        <!-- Create Recipe from Parent-->
         <action
             android:id="@+id/action_create_recipe_from_inspiration"
-            app:destination="@id/navigation_edit_recipe" />
+            app:destination="@id/navigation_edit_recipe" >
+            <argument
+                android:name="inspiration"
+                app:argType="io.brewdict.application.apis.brewdict.models.Recipe" />
+        </action>
+        <!-- View Parent -->
         <action
             android:id="@+id/action_view_inspiration"
             app:destination="@id/navigation_view_recipe" />
+        <action
+            android:id="@+id/action_delete_recipe_successful"
+            app:destination="@id/navigation_recipes" />
     </fragment>
 
     <fragment
         android:id="@+id/navigation_edit_recipe"
         android:name="io.brewdict.application.android.ui.recipes.edit.RecipeFragment"
         android:label="@string/title_recipes"
-        tools:layout="@layout/fragment_edit_recipe" >
-        <argument
-            android:name="inspiration"
-            app:argType="io.brewdict.application.apis.brewdict.models.Recipe"
-            android:defaultValue="@null" />
+        tools:layout="@layout/fragment_add_edit_recipe" >
+        <!-- Save New or Changes -->
         <action
             android:id="@+id/action_save_recipe_changes"
             app:destination="@id/navigation_recipes" />
+        <action
+            android:id="@+id/action_select_style"
+            app:destination="@id/styles" />
+        <action
+            android:id="@+id/action_navigation_edit_recipe_self"
+            app:destination="@id/navigation_edit_recipe" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/styles"
+        android:name="io.brewdict.application.android.ui.recipes.styles.StylesFragment"
+        android:label="Styles"
+        tools:layout="@layout/fragment_styles" >
+        <action
+            android:id="@+id/action_style_selected"
+            app:destination="@id/navigation_edit_recipe" >
+            <argument
+                android:name="style"
+                app:argType="io.brewdict.application.apis.brewdict.models.Style" />
+        </action>
     </fragment>
 
     <fragment
@@ -69,4 +99,5 @@
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" >
     </fragment>
+
 </navigation>

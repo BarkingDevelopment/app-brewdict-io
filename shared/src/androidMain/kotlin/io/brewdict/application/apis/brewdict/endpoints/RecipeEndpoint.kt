@@ -5,11 +5,13 @@ import io.brewdict.application.api_consumption.Result
 import io.brewdict.application.apis.brewdict.BrewdictAPI
 import io.brewdict.application.apis.brewdict.models.Recipe
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.io.IOException
 
 object RecipeEndpoint : CRUDEndpoint<Recipe>(BrewdictAPI, "recipes", "recipes") {
-    override suspend fun index(): Result<List<Recipe>> {
+    override fun index(): Result<List<Recipe>> {
         var result: Result<List<Recipe>>
 
         runBlocking {
@@ -20,14 +22,14 @@ object RecipeEndpoint : CRUDEndpoint<Recipe>(BrewdictAPI, "recipes", "recipes") 
 
                 Result.Success(recipes)
             } catch (e: Throwable) {
-                Result.Error(IOException("Error logging in:", e))
+                Result.Error(IOException("Error retrieving recipes:", e))
             }
         }
 
         return result
     }
 
-    override suspend fun get (id: Int): Result<Recipe> {
+    override fun get (id: Int): Result<Recipe> {
         var result: Result<Recipe>
 
         runBlocking {
@@ -38,51 +40,81 @@ object RecipeEndpoint : CRUDEndpoint<Recipe>(BrewdictAPI, "recipes", "recipes") 
 
                 Result.Success(recipe)
             } catch (e: Throwable) {
-                Result.Error(IOException("Error logging in:", e))
+                Result.Error(IOException("Error retrieving recipe:", e))
             }
         }
 
         return result
     }
 
-    override suspend fun create (model: Recipe): Result<Recipe> {
-        var result: Result<Recipe>
-
-        throw NotImplementedError()
-
-        return result
-    }
-
-    override suspend fun update (id: Int?, model: Recipe): Result<Recipe> {
-        val id = id ?: model.id
+    override fun create (model: Recipe): Result<Recipe> {
         var result: Result<Recipe>
 
         runBlocking {
             result = try {
                 val recipe: Recipe = api.client.post {
-                    url(api.host + "/" + route + "/" + id)
+                    url(api.host + "/users/${BrewdictAPI.loggedInUser!!.user.id}/${route}")
+                    parameter("name", model.name)
+                    parameter("description", model.description)
+                    parameter("inspiration", model.inspiration?.id)
+                    parameter("style_id", model.style.id)
+                    parameter("og", model.og)
+                    parameter("fg", model.fg)
+                    parameter("ibu", model.ibu)
+                    parameter("srm", model.srm)
                 }
 
                 Result.Success(recipe)
             } catch (e: Throwable) {
-                Result.Error(IOException("Error logging in:", e))
+                Result.Error(IOException("Error creating recipe:", e))
+            }
+        }
+
+        return result
+    }
+
+    override fun update (id: Int?, model: Recipe): Result<Recipe> {
+        val id = id ?: model.id
+        var result: Result<Recipe>
+
+        runBlocking {
+            result = try {
+                val recipe: Recipe = api.client.put {
+                    url(api.host + "/" + route + "/" + id)
+                    parameter("name", model.name)
+                    parameter("description", model.description)
+                    parameter("inspiration", model.inspiration?.id)
+                    parameter("style_id", model.style.id)
+                    parameter("og", model.og)
+                    parameter("fg", model.fg)
+                    parameter("ibu", model.ibu)
+                    parameter("srm", model.srm)
+                }
+
+                Result.Success(recipe)
+            } catch (e: Throwable) {
+                Result.Error(IOException("Error updating recipe:", e))
             }
         }
 
         return result}
 
-    override suspend fun delete (id: Int): Result<Recipe> {
-        var result: Result<Recipe>
+    override fun delete (id: Int): Result<Recipe?> {
+        var result: Result<Recipe?>
 
         runBlocking {
             result = try {
-                val recipe: Recipe = api.client.delete {
+                val response: HttpResponse = api.client.delete {
                     url(api.host + "/" + route + "/" + id)
                 }
 
-                Result.Success(recipe)
+                if (response.status == HttpStatusCode.NoContent) {
+                    Result.Success(null)
+                }else {
+                    Result.Error(IOException("Error deleting recipe."))
+                }
             } catch (e: Throwable) {
-                Result.Error(IOException("Error logging in:", e))
+                Result.Error(IOException("Error deleting in:", e))
             }
         }
 

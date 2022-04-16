@@ -5,16 +5,18 @@ import io.brewdict.application.api_consumption.models.User
 import io.brewdict.application.api_consumption.models.Model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.lang.Math.round
 
 @Serializable
 data class Recipe (
-    @SerialName("id") val id: Int,
+    @SerialName("id") val id: Int?,
     @SerialName("owner") val owner: User,
     @SerialName("name") val name: String,
     @SerialName("description") val description: String,
     @SerialName("inspiration") val inspiration: Recipe? = null,
     @SerialName("style") val style: Style,
-    @SerialName("abv") val abv: Float,
+    @SerialName("og") val og: Float,
+    @SerialName("fg") val fg: Float,
     @SerialName("ibu") val ibu: Int,
     @SerialName("srm") val srm: Int,
 ): Model {
@@ -70,6 +72,9 @@ data class Recipe (
           return (minVal .. maxVal).map { srmToColour(it) }
         }
     }
+
+    val abv : Float
+        get() =  (og - fg) * 131.25f
 
     fun colour() : Color {
         return srmToColour(srm)

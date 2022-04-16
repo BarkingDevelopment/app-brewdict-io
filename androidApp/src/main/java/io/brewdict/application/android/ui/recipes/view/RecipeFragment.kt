@@ -2,48 +2,41 @@ package io.brewdict.application.android.ui.recipes.view
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Range
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.animation.AnimatedVisibility
+import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.internal.composableLambdaInstance
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import io.brewdict.application.android.R
 import io.brewdict.application.android.databinding.FragmentViewRecipeBinding
-import io.brewdict.application.android.ui.recipes.RecipeComponents
 import io.brewdict.application.android.ui.recipes.RecipeComponents.ShortRecipeCard
 import io.brewdict.application.android.ui.recipes.RecipeComponents.StyleAccordion
 import io.brewdict.application.android.ui.recipes.list.SampleRecipeProvider
 import io.brewdict.application.apis.brewdict.BrewdictAPI
 import io.brewdict.application.apis.brewdict.models.Recipe
-import io.brewdict.application.apis.brewdict.models.Style
-import kotlin.math.ceil
-import kotlin.math.floor
+import java.text.DecimalFormat
 
 class RecipeFragment : Fragment() {
 
@@ -62,9 +55,6 @@ class RecipeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(RecipeViewModel::class.java)
-        viewModel.recipe = requireArguments().getSerializable("recipe") as Recipe?
-
         _binding = DataBindingUtil.inflate<FragmentViewRecipeBinding>(
             inflater,
             R.layout.fragment_view_recipe,
@@ -80,6 +70,41 @@ class RecipeFragment : Fragment() {
         val root: View = binding.root
 
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel = ViewModelProvider(this).get(RecipeViewModel::class.java)
+        viewModel.recipe = requireArguments().getSerializable("recipe") as Recipe?
+
+        viewModel.recipeDeleteResult.observe(viewLifecycleOwner,
+            Observer { result ->
+                result ?: return@Observer
+
+                result.success?.let{
+                    success()
+                }
+
+                result.error?.let {
+                    fail(it)
+                }
+            })
+    }
+
+    private fun success() {
+        val msg = "Recipe deleted."
+        val appContext = context?.applicationContext ?: return
+        Toast.makeText(appContext, msg, Toast.LENGTH_LONG).show()
+
+        view?.findNavController()?.navigate(
+            R.id.action_delete_recipe_successful
+        )
+    }
+
+    private fun fail(@StringRes errorString: Int){
+        val appContext = context?.applicationContext ?: return
+        Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
     }
 
     fun viewInspiration(recipe: Recipe){
@@ -139,7 +164,7 @@ class RecipeFragment : Fragment() {
                                 .padding(end = 4.dp)
                         ) {
                             Text(
-                                text = "${recipe.abv}%"
+                                text = "${DecimalFormat("#0.0").format(recipe.abv)}%"
                             )
                             Text(
                                 text = "IBU: ${recipe.ibu}"
@@ -196,27 +221,7 @@ class RecipeFragment : Fragment() {
             }
 
             Row{
-                if(recipe.owner.id == BrewdictAPI.loggedInUser!!.user.id){
-                    Button(
-                        onClick = {
-                            editRecipe()
-                        }
-                    ){
-                        Text(
-                            text = "Edit"
-                        )
-                    }
-                } else {
-                    Button(
-                        onClick = {
-                            createRecipe()
-                        }
-                    ){
-                        Text(
-                            text = "Create Recipe From"
-                        )
-                    }
-                }
+
             }
 
         }
@@ -226,7 +231,56 @@ class RecipeFragment : Fragment() {
     @ExperimentalMaterialApi
     @Composable
     fun Content(){
-        RecipeCard(viewModel.recipe!!)
+        val recipe = viewModel.recipe!!
+
+        Column() {
+            RecipeCard(recipe)
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ){
+                if (recipe.owner.id == BrewdictAPI.loggedInUser!!.user.id) {
+                    Button(
+                        onClick = {
+                            editRecipe()
+                        },
+                        modifier = Modifier
+                                .padding(end=4.dp)
+                    ) {
+                        Text(
+                            text = "Edit"
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            viewModel.deleteRecipe(recipe)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                                contentColor = Color.White,
+                                backgroundColor = Color.Red
+                            ),
+                        modifier = Modifier
+                            .padding(start=4.dp)
+                    ) {
+                        Text(
+                            text = "Delete"
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            createRecipe()
+                        }
+                    ) {
+                        Text(
+                            text = "Create Recipe From"
+                        )
+                    }
+                }
+            }
+        }
     }
 
     @ExperimentalAnimationApi
