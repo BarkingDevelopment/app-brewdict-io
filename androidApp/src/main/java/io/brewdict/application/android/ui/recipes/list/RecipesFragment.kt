@@ -213,72 +213,70 @@ class RecipesFragment : Fragment() {
         val recipes: List<Recipe> by viewModel.values.observeAsState(listOf())
         val isRefreshing by viewModel.isRefreshing.collectAsState()
 
-        Column (
-            modifier = Modifier
-                .padding(all = 8.dp)
-        ){
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                MultiToggleButton(RecipeOwnerMultiToggleEnum.values(), RecipeOwnerMultiToggleEnum.ALL) {
-                    when(it){
-                        RecipeOwnerMultiToggleEnum.ALL -> viewModel.toggleShowPublicRecipes(true)
-                        RecipeOwnerMultiToggleEnum.PRIVATE -> viewModel.toggleShowPublicRecipes(false)
+        Scaffold(
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        createRecipe()
+                    }
+                ){
+                    Icon(
+                        painter = painterResource(R.drawable.ic_baseline_add_24),
+                        contentDescription = null,
+                    )
+                }
+            },
+
+            content = {
+                Column (
+                    modifier = Modifier
+                        .padding(all = 8.dp)
+                ){
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        MultiToggleButton(RecipeOwnerMultiToggleEnum.values(), RecipeOwnerMultiToggleEnum.ALL) {
+                            when(it){
+                                RecipeOwnerMultiToggleEnum.ALL -> viewModel.toggleShowPublicRecipes(true)
+                                RecipeOwnerMultiToggleEnum.PRIVATE -> viewModel.toggleShowPublicRecipes(false)
+                            }
+                        }
+                    }
+
+                    SearchBar()
+
+                    Divider(
+                        color = Color.Gray,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        thickness = 1.dp
+                    )
+
+                    SwipeRefresh(
+                        state = rememberSwipeRefreshState(isRefreshing),
+                        onRefresh = {
+                            viewModel.refreshList()
+                        },
+                        modifier = Modifier
+                            .fillMaxHeight()
+                    ) {
+                        LazyColumn(
+                            content = {
+                                items(
+                                    items = recipes,
+                                    itemContent = { it ->
+                                        ShortRecipeCard(it){
+                                            viewRecipe(it)
+                                        }
+                                    }
+                                )
+                            },
+                        )
                     }
                 }
-
-                Icon(
-                    painter = painterResource(R.drawable.ic_baseline_add_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .clip(
-                            shape = CircleShape,
-                        )
-                        .clickable {
-                            createRecipe()
-                        }
-                        .background(
-                            // FIXME Replace colours.
-                            Color.Magenta
-                        )
-                        .padding(
-                            vertical = 12.dp,
-                            horizontal = 12.dp,
-                        )
-                )
             }
-
-
-            SearchBar()
-
-            Divider(
-                color = Color.Gray,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                thickness = 1.dp
-            )
-
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(isRefreshing),
-                onRefresh = {
-                    viewModel.refreshList()
-                },
-            ) {
-                LazyColumn(
-                    content = {
-                        items(
-                            items = recipes,
-                            itemContent = { it ->
-                                ShortRecipeCard(it){
-                                    viewRecipe(it)
-                                }
-                            }
-                        )
-                    }
-                )
-            }
-        }
+        )
     }
 
     @Preview

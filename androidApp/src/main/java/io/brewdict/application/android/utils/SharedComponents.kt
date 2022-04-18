@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.brewdict.application.android.R
 
@@ -25,15 +26,12 @@ object SharedComponents {
         var selectedOption by remember { mutableStateOf(default) }
 
         Row(
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceAround,
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             options.forEach { state ->
-                Column(
-                    modifier = Modifier
-                        .padding(
-                            end = 8.dp,
-                        ),
-                ) {
+                Column() {
                     Text(
                         text = state.string,
                         color = Color.White,
@@ -58,7 +56,7 @@ object SharedComponents {
                             .padding(
                                 vertical = 16.dp,
                                 horizontal = 16.dp,
-                            ),
+                            )
                     )
                 }
             }
