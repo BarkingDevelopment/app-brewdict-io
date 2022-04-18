@@ -56,14 +56,14 @@ abstract class IndexResourceViewModel<T : Model, S : SortingFieldEnum<T>>(
     @SuppressWarnings("unchecked")
     private fun sortUsing(
         list: List<T>,
-        field: T.() -> Any,
+        field: T.() -> Any?,
         ascending: Boolean
     ): List<T> {
         // FIXME:   Abstract Comparable<Any> out of sort functions. This can be done using
         //          <V: Comparable<V>> but am unsure how this works with the way I've done enums.
         //          It works tho so... can't complain.
-        return if (ascending) list.sortedBy { it.field() as Comparable<Any> }
-            else list.sortedByDescending { it.field() as Comparable<Any> }
+        return if (ascending) list.sortedBy { it.field() as Comparable<Any?> }
+            else list.sortedByDescending { it.field() as Comparable<Any?> }
     }
 
     fun refreshList() {
