@@ -15,7 +15,11 @@
         android:id="@+id/navigation_fermentations"
         android:name="io.brewdict.application.android.ui.fermentations.FermentationsFragment"
         android:label="@string/title_fermentations"
-        tools:layout="@layout/fragment_fermentations" />
+        tools:layout="@layout/fragment_fermentations" >
+        <action
+            android:id="@+id/action_view_recipes"
+            app:destination="@id/navigation_recipes" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_recipes"
@@ -60,6 +64,9 @@
         <action
             android:id="@+id/action_delete_recipe_successful"
             app:destination="@id/navigation_recipes" />
+        <action
+            android:id="@+id/action_create_fermentation_successful"
+            app:destination="@id/navigation_fermentations" />
     </fragment>
 
     <fragment

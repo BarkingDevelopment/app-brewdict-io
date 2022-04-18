@@ -33,7 +33,22 @@ object FermentationEndpoint : CRUDEndpoint<Fermentation>(BrewdictAPI, "fermentat
     }
 
     override fun create(model: Fermentation): Result<Fermentation> {
-        TODO("Not yet implemented")
+        var result: Result<Fermentation>
+
+        runBlocking {
+            result = try {
+                val style: Fermentation = api.client.post {
+                    url("${api.host}/users/${BrewdictAPI.loggedInUser!!.user.id}/${route}")
+                    parameter("recipe_id", model.recipe.id)
+                }
+
+                Result.Success(style)
+            } catch (e: Throwable) {
+                Result.Error(IOException("Error creating fermentation:", e))
+            }
+        }
+
+        return result
     }
 
     override fun update(id: Int?, model: Fermentation): Result<Fermentation> {

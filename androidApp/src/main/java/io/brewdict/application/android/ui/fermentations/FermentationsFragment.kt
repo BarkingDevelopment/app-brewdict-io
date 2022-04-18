@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.brewdict.application.android.R
@@ -77,7 +78,9 @@ class FermentationsFragment : Fragment() {
     }
 
     private fun createFermentation(){
-
+        view?.findNavController()?.navigate(
+            R.id.action_view_recipes
+        )
     }
 
     private fun viewFermentation(fermentation: Fermentation){

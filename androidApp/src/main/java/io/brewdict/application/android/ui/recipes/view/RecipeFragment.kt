@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.internal.composableLambdaInstance
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -83,16 +82,31 @@ class RecipeFragment : Fragment() {
                 result ?: return@Observer
 
                 result.success?.let{
-                    success()
+                    deleteSuccess()
                 }
 
                 result.error?.let {
-                    fail(it)
+                    deleteFail(it)
                 }
-            })
+            }
+        )
+
+        viewModel.fermentationCreateResult.observe(viewLifecycleOwner,
+            Observer { result ->
+                result ?: return@Observer
+
+                result.success?.let{
+                    createFermentationSuccess()
+                }
+
+                result.error?.let {
+                    createFermentationFail(it)
+                }
+            }
+        )
     }
 
-    private fun success() {
+    private fun deleteSuccess() {
         val msg = "Recipe deleted."
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, msg, Toast.LENGTH_LONG).show()
@@ -102,26 +116,41 @@ class RecipeFragment : Fragment() {
         )
     }
 
-    private fun fail(@StringRes errorString: Int){
+    private fun deleteFail(@StringRes errorString: Int){
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
     }
 
-    fun viewInspiration(recipe: Recipe){
+    private fun createFermentationSuccess() {
+        val msg = "Recipe deleted."
+        val appContext = context?.applicationContext ?: return
+        Toast.makeText(appContext, msg, Toast.LENGTH_LONG).show()
+
+        view?.findNavController()?.navigate(
+            R.id.action_create_fermentation_successful
+        )
+    }
+
+    private fun createFermentationFail(@StringRes errorString: Int){
+        val appContext = context?.applicationContext ?: return
+        Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
+    }
+
+    private fun viewInspiration(recipe: Recipe){
         view?.findNavController()?.navigate(
             R.id.action_view_inspiration,
             bundleOf( "recipe" to recipe)
         )
     }
 
-    fun createRecipe(){
+    private fun createRecipe(){
         view?.findNavController()?.navigate(
             R.id.action_create_recipe_from_inspiration,
             bundleOf( "inspiration" to viewModel.recipe)
         )
     }
 
-    fun editRecipe(){
+    private fun editRecipe(){
         view?.findNavController()?.navigate(
             R.id.action_edit_recipe,
             bundleOf( "recipe" to viewModel.recipe)
@@ -235,6 +264,18 @@ class RecipeFragment : Fragment() {
 
         Column() {
             RecipeCard(recipe)
+
+            Row{
+                Button(
+                    onClick = {
+                        viewModel.createFermentation(recipe)
+                    }
+                ) {
+                    Text(
+                        text = "Create Fermentation From"
+                    )
+                }
+            }
 
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
