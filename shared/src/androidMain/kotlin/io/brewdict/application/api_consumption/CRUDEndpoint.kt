@@ -7,23 +7,13 @@ abstract class CRUDEndpoint<T : Model> (
     val route: String,
     val type: String
 ) : Endpoint {
-    open fun index(): Result<List<T>>{
-        throw NotImplementedError()
-    }
+    abstract fun index(): Result<List<T>>
 
-    open fun get (id: Int): Result<T> {
-        throw NotImplementedError()
-    }
+    abstract fun get (id: Int): Result<T>
 
-    open fun create (model: T): Result<T>{
-        throw NotImplementedError()
-    }
+    abstract fun create (model: T): Result<T>
 
-    open fun update (id: Int?, model: T): Result<T>{
-        throw NotImplementedError()
-    }
+    abstract fun update (id: Int?, model: T): Result<T>
 
-    open fun delete (id: Int): Result<T?>{
-        throw NotImplementedError()
-    }
+    abstract fun delete (id: Int): Result<T?>
 }

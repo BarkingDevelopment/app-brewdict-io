@@ -27,6 +27,10 @@ object StyleEndpoint: CRUDEndpoint<Style>(BrewdictAPI, "styles", "styles") {
         return result
     }
 
+    override fun create(model: Style): Result<Style> {
+        throw UnsupportedOperationException("Resource path  denied.")
+    }
+
     override fun get (id: Int): Result<Style> {
         var result: Result<Style>
 
@@ -43,5 +47,13 @@ object StyleEndpoint: CRUDEndpoint<Style>(BrewdictAPI, "styles", "styles") {
         }
 
         return result
+    }
+
+    override fun update(id: Int?, model: Style): Result<Style> {
+        throw UnsupportedOperationException("Resource path  denied.")
+    }
+
+    override fun delete(id: Int): Result<Style?> {
+        throw UnsupportedOperationException("Resource path  denied.")
     }
 }
