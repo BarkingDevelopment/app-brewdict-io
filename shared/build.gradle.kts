@@ -84,3 +84,6 @@ android {
         targetSdk = 31
     }
 }
+dependencies {
+    implementation("androidx.compose.ui:ui-graphics:1.1.1")
+}
