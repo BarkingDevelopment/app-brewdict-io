@@ -74,13 +74,13 @@ object RecipeEndpoint : CRUDEndpoint<Recipe>(BrewdictAPI, "recipes", "recipes") 
     }
 
     override fun update (id: Int?, model: Recipe): Result<Recipe> {
-        val id = id ?: model.id
+        val modelId = id ?: model.id
         var result: Result<Recipe>
 
         runBlocking {
             result = try {
                 val recipe: Recipe = api.client.put {
-                    url(api.host + "/" + route + "/" + id)
+                    url(api.host + "/" + route + "/" + modelId)
                     parameter("name", model.name)
                     parameter("description", model.description)
                     parameter("inspiration", model.inspiration?.id)
@@ -97,7 +97,8 @@ object RecipeEndpoint : CRUDEndpoint<Recipe>(BrewdictAPI, "recipes", "recipes") 
             }
         }
 
-        return result}
+        return result
+    }
 
     override fun delete (id: Int): Result<Recipe?> {
         var result: Result<Recipe?>

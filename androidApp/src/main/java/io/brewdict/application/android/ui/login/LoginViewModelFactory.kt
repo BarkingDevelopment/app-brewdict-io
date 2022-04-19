@@ -6,7 +6,7 @@ import io.brewdict.application.apis.brewdict.BrewdictAPI
 import java.lang.IllegalArgumentException
 
 class LoginViewModelFactory : Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
             return LoginViewModel(
                 api = BrewdictAPI
