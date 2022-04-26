@@ -29,7 +29,21 @@ object FermentationEndpoint : CRUDEndpoint<Fermentation>(BrewdictAPI, "fermentat
     }
 
     override fun get(id: Int): Result<Fermentation> {
-        TODO("Not yet implemented")
+        var result: Result<Fermentation>
+
+        runBlocking {
+            result = try {
+                val fermentation: Fermentation = api.client.get {
+                    url("${api.host}/${route}/${id}")
+                }
+
+                Result.Success(fermentation)
+            } catch (e: Throwable) {
+                Result.Error(IOException("Error creating fermentation:", e))
+            }
+        }
+
+        return result
     }
 
     override fun create(model: Fermentation): Result<Fermentation> {
@@ -57,5 +71,42 @@ object FermentationEndpoint : CRUDEndpoint<Fermentation>(BrewdictAPI, "fermentat
 
     override fun delete(id: Int): Result<Fermentation?> {
         TODO("Not yet implemented")
+    }
+
+    fun start(id: Int, og: Float): Result<Fermentation> {
+        var result: Result<Fermentation>
+
+        runBlocking {
+            result = try {
+                val fermentation: Fermentation = api.client.put {
+                    url("${api.host}/${route}/${id}/start")
+                    parameter("og", og)
+                }
+
+                Result.Success(fermentation)
+            } catch (e: Throwable) {
+                Result.Error(IOException("Error starting fermentation:", e))
+            }
+        }
+
+        return result
+    }
+
+    fun complete(id: Int): Result<Fermentation> {
+        var result: Result<Fermentation>
+
+        runBlocking {
+            result = try {
+                val fermentation: Fermentation = api.client.put {
+                    url("${api.host}/${route}/${id}/complete")
+                }
+
+                Result.Success(fermentation)
+            } catch (e: Throwable) {
+                Result.Error(IOException("Error completing fermentation:", e))
+            }
+        }
+
+        return result
     }
 }

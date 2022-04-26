@@ -1,4 +1,4 @@
-package io.brewdict.application.android.ui.fermentations
+package io.brewdict.application.android.ui.fermentations.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -25,12 +26,8 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.brewdict.application.android.R
 import io.brewdict.application.android.databinding.FragmentFermentationsBinding
-import io.brewdict.application.android.ui.recipes.RecipeComponents
-import io.brewdict.application.android.ui.recipes.list.RecipeOwnerMultiToggleEnum
-import io.brewdict.application.android.ui.recipes.list.RecipeSortingFieldEnum
 import io.brewdict.application.android.utils.SharedComponents
 import io.brewdict.application.apis.brewdict.models.Fermentation
-import io.brewdict.application.apis.brewdict.models.Recipe
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -84,7 +81,10 @@ class FermentationsFragment : Fragment() {
     }
 
     private fun viewFermentation(fermentation: Fermentation){
-
+        view?.findNavController()?.navigate(
+            R.id.action_view_fermentationn,
+            bundleOf( "fermentation" to fermentation)
+        )
     }
 
     // TODO: Extract to index class. SAme as StylesFragment Sorting().
@@ -239,7 +239,7 @@ class FermentationsFragment : Fragment() {
                 Row(){
                     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                         Text(
-                            text = if (fermentation.startDatetime != null) "Started: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH).format(fermentation.startDatetime)}" else "No Started",
+                            text = if (fermentation.startDatetime != null) "Started: ${fermentation.startDatetime}" else "No Started",
                             style = MaterialTheme.typography.body2
                         )
                     }

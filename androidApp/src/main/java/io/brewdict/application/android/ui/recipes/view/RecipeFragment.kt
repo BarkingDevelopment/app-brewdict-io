@@ -34,6 +34,7 @@ import io.brewdict.application.android.ui.recipes.RecipeComponents.ShortRecipeCa
 import io.brewdict.application.android.ui.recipes.RecipeComponents.StyleAccordion
 import io.brewdict.application.android.ui.recipes.list.SampleRecipeProvider
 import io.brewdict.application.apis.brewdict.BrewdictAPI
+import io.brewdict.application.apis.brewdict.models.Fermentation
 import io.brewdict.application.apis.brewdict.models.Recipe
 import java.text.DecimalFormat
 
@@ -96,7 +97,7 @@ class RecipeFragment : Fragment() {
                 result ?: return@Observer
 
                 result.success?.let{
-                    createFermentationSuccess()
+                    createFermentationSuccess(it)
                 }
 
                 result.error?.let {
@@ -121,13 +122,14 @@ class RecipeFragment : Fragment() {
         Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
     }
 
-    private fun createFermentationSuccess() {
-        val msg = "Recipe deleted."
+    private fun createFermentationSuccess(fermentation: Fermentation) {
+        val msg = "Fermentation created."
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, msg, Toast.LENGTH_LONG).show()
 
         view?.findNavController()?.navigate(
-            R.id.action_create_fermentation_successful
+            R.id.action_create_fermentation_successful,
+            bundleOf( "fermentation" to fermentation)
         )
     }
 

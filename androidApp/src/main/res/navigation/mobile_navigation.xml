@@ -13,12 +13,48 @@
 
     <fragment
         android:id="@+id/navigation_fermentations"
-        android:name="io.brewdict.application.android.ui.fermentations.FermentationsFragment"
+        android:name="io.brewdict.application.android.ui.fermentations.list.FermentationsFragment"
         android:label="@string/title_fermentations"
         tools:layout="@layout/fragment_fermentations" >
         <action
             android:id="@+id/action_view_recipes"
             app:destination="@id/navigation_recipes" />
+        <action
+            android:id="@+id/action_view_fermentationn"
+            app:destination="@id/navigation_view_fermentation" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_view_fermentation"
+        android:name="io.brewdict.application.android.ui.fermentations.view.FermentationViewFragment"
+        android:label="@string/title_fermentations"
+        tools:layout="@layout/fragment_view_fermentation" >
+
+        <argument
+            android:name="fermentation"
+            app:argType="io.brewdict.application.apis.brewdict.models.Fermentation" />
+
+        <action
+            android:id="@+id/action_view_readings"
+            app:destination="@id/navigation_view_readings" />
+        <action
+            android:id="@+id/action_refresh_fermentation"
+            app:destination="@id/navigation_view_fermentation" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_view_readings"
+        android:name="io.brewdict.application.android.ui.fermentations.readings.ReadingFragment"
+        android:label="Readings"
+        tools:layout="@layout/fragment_readings" >
+
+        <argument
+            android:name="fermentation"
+            app:argType="io.brewdict.application.apis.brewdict.models.Fermentation" />
+
+        <action
+            android:id="@+id/action_return_fermentation"
+            app:destination="@id/navigation_view_fermentation" />
     </fragment>
 
     <fragment
@@ -61,12 +97,14 @@
         <action
             android:id="@+id/action_view_inspiration"
             app:destination="@id/navigation_view_recipe" />
+        <!-- Recipe Delete Successful-->
         <action
             android:id="@+id/action_delete_recipe_successful"
             app:destination="@id/navigation_recipes" />
+        <!-- Fermentation Create Successful-->
         <action
             android:id="@+id/action_create_fermentation_successful"
-            app:destination="@id/navigation_fermentations" />
+            app:destination="@id/navigation_view_fermentation" />
     </fragment>
 
     <fragment

@@ -7,10 +7,15 @@ android {
     compileSdk = 31
     defaultConfig {
         applicationId = "io.brewdict.application.android"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 31
         versionCode = 1
         versionName = "1.0"
+        externalNativeBuild {
+            cmake {
+                cppFlags += ""
+            }
+        }
     }
     buildTypes {
         getByName("release") {
@@ -32,30 +37,43 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.1.1"
     }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.18.1"
+        }
+    }
 }
 
 dependencies {
     implementation(project(":shared"))
-    implementation("com.google.android.material:material:1.5.0")
-    implementation("androidx.appcompat:appcompat:1.4.1")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
-    implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.annotation:annotation:1.3.0")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.4.2")
-    implementation("androidx.navigation:navigation-ui-ktx:2.4.2")
+
+    coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:1.1.5")
+
+    implementation ("com.google.android.material:material:1.5.0")
+    implementation ("androidx.appcompat:appcompat:1.4.1")
+    implementation ("androidx.constraintlayout:constraintlayout:2.1.3")
+    implementation ("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation ("androidx.annotation:annotation:1.3.0")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.4.2")
+    implementation ("androidx.navigation:navigation-ui-ktx:2.4.2")
 
     //Jetpack Compose Dependencies
     implementation ("androidx.activity:activity-compose:1.4.0")
     implementation ("androidx.compose.material:material:1.1.1")
     implementation ("androidx.compose.animation:animation:1.1.1")
-    implementation("androidx.compose.ui:ui:1.1.1")
+    implementation ("androidx.compose.ui:ui:1.1.1")
     implementation ("androidx.compose.ui:ui-tooling:1.1.1")
     implementation ("androidx.compose.runtime:runtime-livedata:1.1.1")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
     implementation ("com.google.accompanist:accompanist-appcompat-theme:0.16.0")
     implementation ("com.google.accompanist:accompanist-swiperefresh:0.23.1")
     implementation ("androidx.navigation:navigation-compose:2.4.2")
+    implementation ("io.github.vanpra.compose-material-dialogs:core:0.7.0")
+    implementation ("io.github.vanpra.compose-material-dialogs:datetime:0.7.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
     androidTestImplementation ("androidx.compose.ui:ui-test-junit4:1.1.1")
 }

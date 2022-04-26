@@ -1,4 +1,4 @@
-package io.brewdict.application.android.ui.fermentations
+package io.brewdict.application.android.ui.fermentations.list
 
 import io.brewdict.application.android.utils.IndexResourceViewModel
 import io.brewdict.application.apis.brewdict.BrewdictAPI
