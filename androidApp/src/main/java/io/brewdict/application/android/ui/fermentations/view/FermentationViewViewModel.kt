@@ -3,8 +3,8 @@ package io.brewdict.application.android.ui.fermentations.view
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.brewdict.application.android.Brewdict
 import io.brewdict.application.android.R
-import io.brewdict.application.android.ui.recipes.edit.RecipeSaveResult
 import io.brewdict.application.android.ui.recipes.view.FermentationCreateResult
 import io.brewdict.application.api_consumption.Result
 import io.brewdict.application.apis.brewdict.BrewdictAPI
@@ -13,6 +13,8 @@ import io.brewdict.application.apis.brewdict.models.Fermentation
 import io.brewdict.application.apis.brewdict.models.Recipe
 
 class FermentationViewViewModel : ViewModel() {
+    private val brewdict = Brewdict()
+
     private val _fermentationStartResult = MutableLiveData<FermentationStartResult>()
     val fermentationStartResult: LiveData<FermentationStartResult> = _fermentationStartResult
 
@@ -70,5 +72,9 @@ class FermentationViewViewModel : ViewModel() {
 
         if (result is Result.Success) _fermentationCreateResult.value = FermentationCreateResult(success = result.data)
         else _fermentationCreateResult.value = FermentationCreateResult(error = R.string.login_failed)
+    }
+
+    fun predictDuration(): Float {
+        return brewdict.predictFermentationDuration(fermentation)
     }
 }

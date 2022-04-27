@@ -35,7 +35,6 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import io.brewdict.application.android.R
 import io.brewdict.application.android.databinding.FragmentViewFermentationBinding
 import io.brewdict.application.android.ui.recipes.RecipeComponents.ShortRecipeCard
-import io.brewdict.application.android.ui.recipes.list.RecipesFragment
 import io.brewdict.application.apis.brewdict.models.Fermentation
 import io.brewdict.application.apis.brewdict.models.Reading
 import io.brewdict.application.apis.brewdict.models.Recipe
@@ -184,7 +183,7 @@ class FermentationViewFragment : Fragment() {
         )
     }
 
-    private fun sgToPoints(field: Fermentation.() -> List<Reading>?, label: String): LineDataSet {
+    private fun fieldToPoints(field: Fermentation.() -> List<Reading>?, label: String): LineDataSet {
         return if (viewModel.fermentation.field().isNullOrEmpty()) {
             LineDataSet(listOf<Entry>(), label)
         } else {
@@ -202,23 +201,14 @@ class FermentationViewFragment : Fragment() {
         }
     }
 
-    private fun calculateFermTime(): Float{
-        val readings: List<Reading> = viewModel.fermentation.readings!!
-
-        return ChronoUnit.DAYS.between(
-            readings.minOf { it.recordedDatetime },
-            readings.maxOf { it.recordedDatetime }
-        ).toFloat()
-    }
-
     @Composable
     private fun readingsChart(){
         AndroidView(
             factory = { ctx ->
                 LineChart(ctx).apply {
-                    val sg = sgToPoints({ specificGravities }, "Specific Gravity")
+                    val sg = fieldToPoints({ specificGravities }, "Specific Gravity")
                     sg.color = R.color.colorAccent
-                    val temp = sgToPoints({ temperatures }, "Temperature")
+                    val temp = fieldToPoints({ temperatures }, "Temperature")
                     temp.color = R.color.colorPrimary
 
                     val dataSets: List<ILineDataSet> = arrayListOf(sg, temp)
@@ -389,7 +379,8 @@ class FermentationViewFragment : Fragment() {
                             text = "Fermentation Time"
                         )
                         Text(
-                            text = ""
+                            //text = ""
+                            text = "${viewModel.predictDuration()} hours"
                         )
                     }
                 }
@@ -493,7 +484,7 @@ class FermentationViewFragment : Fragment() {
                             text = "Fermentation Time"
                         )
                         Text(
-                            text = "${calculateFermTime()} Days"
+                            text = "${viewModel.fermentation.fermenetationTime} Days"
                         )
                     }
                 }
