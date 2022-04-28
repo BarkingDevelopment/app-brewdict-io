@@ -35,15 +35,15 @@ class FermentationViewViewModel : ViewModel() {
             fermentation
     }
 
-    fun startFermentation(og:  Float?){
-        if (og == null){
+    fun startFermentation(og: Float?, temp: Float?){
+        if (og == null || temp == null){
             _fermentationStartResult.value = FermentationStartResult(error = R.string.login_failed)
             return
         }
 
         val endpoint = BrewdictAPI.endpoints["fermentations"]!! as FermentationEndpoint
 
-        val result = endpoint.start(fermentation.id!!, og)
+        val result = endpoint.start(fermentation.id!!, og, temp)
 
         if (result is Result.Success) _fermentationStartResult.value = FermentationStartResult(success = result.data)
         else _fermentationStartResult.value = FermentationStartResult(error = R.string.login_failed)

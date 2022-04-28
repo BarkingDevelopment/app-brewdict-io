@@ -73,7 +73,7 @@ object FermentationEndpoint : CRUDEndpoint<Fermentation>(BrewdictAPI, "fermentat
         TODO("Not yet implemented")
     }
 
-    fun start(id: Int, og: Float): Result<Fermentation> {
+    fun start(id: Int, og: Float, temp: Float): Result<Fermentation> {
         var result: Result<Fermentation>
 
         runBlocking {
@@ -81,6 +81,7 @@ object FermentationEndpoint : CRUDEndpoint<Fermentation>(BrewdictAPI, "fermentat
                 val fermentation: Fermentation = api.client.put {
                     url("${api.host}/${route}/${id}/start")
                     parameter("og", og)
+                    parameter("temp", temp)
                 }
 
                 Result.Success(fermentation)

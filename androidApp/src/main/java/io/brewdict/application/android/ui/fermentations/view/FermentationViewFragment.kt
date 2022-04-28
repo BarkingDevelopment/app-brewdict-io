@@ -38,6 +38,7 @@ import io.brewdict.application.android.ui.recipes.RecipeComponents.ShortRecipeCa
 import io.brewdict.application.apis.brewdict.models.Fermentation
 import io.brewdict.application.apis.brewdict.models.Reading
 import io.brewdict.application.apis.brewdict.models.Recipe
+import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -178,7 +179,7 @@ class FermentationViewFragment : Fragment() {
 
     fun viewRecipe(recipe: Recipe){
         view?.findNavController()?.navigate(
-            R.id.action_view_recipe,
+            R.id.action_view_fermentation_recipe,
             bundleOf( "recipe" to recipe)
         )
     }
@@ -268,6 +269,7 @@ class FermentationViewFragment : Fragment() {
     @Composable
     private fun NewBody() {
         val og = remember { mutableStateOf(TextFieldValue("")) }
+        val temp = remember { mutableStateOf(TextFieldValue("")) }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -298,9 +300,31 @@ class FermentationViewFragment : Fragment() {
                     .padding(end = 8.dp)
             )
 
+            OutlinedTextField(
+                trailingIcon = {
+                    Text (
+                        text = "C"
+                    )
+                },
+                label = {
+                    Text (
+                        text = "Temperature"
+                    )
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                value = temp.value,
+                onValueChange = {
+                    temp.value = it
+                },
+                modifier = Modifier
+                    .weight(1.0f)
+                    .padding(end = 8.dp)
+            )
+
             Button(
                 onClick = {
-                    viewModel.startFermentation(og.value.text.toFloatOrNull())
+                    viewModel.startFermentation(og.value.text.toFloatOrNull(), temp.value.text.toFloatOrNull())
                 }
             ) {
                 Text (
@@ -370,7 +394,8 @@ class FermentationViewFragment : Fragment() {
                                     text = "ABV"
                                 )
                                 Text(
-                                    text = "${viewModel.fermentation.abv}%"
+                                    text = "${
+                                        DecimalFormat("#0.0").format(viewModel.fermentation.abv)}%"
                                 )
                             }
                         }
@@ -388,7 +413,9 @@ class FermentationViewFragment : Fragment() {
         }
 
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Button(
                 onClick = {
