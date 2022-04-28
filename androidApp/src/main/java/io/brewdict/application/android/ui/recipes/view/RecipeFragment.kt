@@ -267,7 +267,11 @@ class RecipeFragment : Fragment() {
         Column() {
             RecipeCard(recipe)
 
-            Row{
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ){
                 Button(
                     onClick = {
                         viewModel.createFermentation(recipe)
