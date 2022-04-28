@@ -10,6 +10,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,7 +51,7 @@ class RegisterFragment : Fragment() {
         ).apply {
             composeView.setContent {
                 MaterialTheme {
-                    Layout()
+                    Content()
                 }
             }
         }
@@ -175,6 +178,7 @@ class RegisterFragment : Fragment() {
                                 )
                             )
                         },
+                        singleLine = true,
                         value = username.value,
                         onValueChange = { username.value = it }
                     )
@@ -195,6 +199,7 @@ class RegisterFragment : Fragment() {
                                 )
                             )
                         },
+                        singleLine = true,
                         value = email.value,
                         onValueChange = { email.value = it }
                     )
@@ -215,8 +220,11 @@ class RegisterFragment : Fragment() {
                                 )
                             )
                         },
+                        singleLine = true,
                         value = password.value,
-                        onValueChange = { password.value = it }
+                        onValueChange = { password.value = it },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
 
                     OutlinedTextField(
@@ -235,8 +243,11 @@ class RegisterFragment : Fragment() {
                                 )
                             )
                         },
+                        singleLine = true,
                         value = retypePassword.value,
-                        onValueChange = { retypePassword.value = it }
+                        onValueChange = { retypePassword.value = it },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
 
                     OutlinedButton(
@@ -259,7 +270,7 @@ class RegisterFragment : Fragment() {
     }
 
     @Composable
-    fun Layout(){
+    fun Content(){
         Column (
             horizontalAlignment = Alignment.CenterHorizontally
         ){

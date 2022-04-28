@@ -20,7 +20,7 @@ class RegisterViewModel(private val api: AuthenticatedAPI) : ViewModel() {
     fun register(email: String, username: String, password: String){
 
         val result = api.register(
-            User(email, username),
+            User(null, email, username),
             password
         )
 

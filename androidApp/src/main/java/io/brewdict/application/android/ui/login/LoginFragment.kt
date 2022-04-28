@@ -11,6 +11,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,7 +52,7 @@ class LoginFragment : Fragment() {
         ).apply {
             composeView.setContent {
                 MaterialTheme {
-                    Layout()
+                    Content()
                 }
             }
         }
@@ -150,8 +153,8 @@ class LoginFragment : Fragment() {
 
     @Composable
     fun LoginForm(){
-        val identity = remember { mutableStateOf(TextFieldValue()) }
-        val password = remember { mutableStateOf(TextFieldValue()) }
+        val identity = remember { mutableStateOf(TextFieldValue("")) }
+        val password = remember { mutableStateOf(TextFieldValue("")) }
 
         Column (
         ){
@@ -168,6 +171,7 @@ class LoginFragment : Fragment() {
                                 contentDescription = null,// decorative element
                             )
                         },
+                        label = { Text("Enter Identity") },
                         placeholder = {
                             Text(
                                 text = getString(R.string.prompt_identity),
@@ -177,6 +181,7 @@ class LoginFragment : Fragment() {
                                 )
                             )
                         },
+                        singleLine = true,
                         value = identity.value,
                         onValueChange = { identity.value = it }
                     )
@@ -188,6 +193,7 @@ class LoginFragment : Fragment() {
                                 contentDescription = null,// decorative element
                             )
                         },
+                        label = { Text("Enter password") },
                         placeholder = {
                             Text(
                                 text = getString(R.string.prompt_password),
@@ -197,8 +203,11 @@ class LoginFragment : Fragment() {
                                 )
                             )
                         },
+                        singleLine = true,
                         value = password.value,
-                        onValueChange = { password.value = it }
+                        onValueChange = { password.value = it },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
 
                     OutlinedButton(
@@ -218,7 +227,7 @@ class LoginFragment : Fragment() {
     }
 
     @Composable
-    fun Layout(){
+    fun Content(){
         Column (
             horizontalAlignment = Alignment.CenterHorizontally
         ){
@@ -236,7 +245,7 @@ class LoginFragment : Fragment() {
     @Preview
     @Composable
     fun LayoutPreview(){
-        Layout()
+        Content()
     }
 
 }

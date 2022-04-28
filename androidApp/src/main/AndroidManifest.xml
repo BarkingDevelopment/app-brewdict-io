@@ -6,11 +6,12 @@
 
     <application
         android:supportsRtl="true"
+        android:label="Brewdict.io"
         android:theme="@style/AppTheme">
         <activity
             android:name=".DashboardActivity"
             android:exported="false"
-            android:label="@string/title_activity_dashboard" />
+            android:label="Brewdict.io" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
