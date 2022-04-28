@@ -24,7 +24,7 @@ class DashboardActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController,
             AppBarConfiguration(
                 setOf(
-                    R.id.navigation_dashboard, R.id.navigation_fermentations, R.id.navigation_recipes, R.id.navigation_profile
+                    R.id.navigation_fermentations, R.id.navigation_recipes, R.id.navigation_profile
                 )
             )
         )
