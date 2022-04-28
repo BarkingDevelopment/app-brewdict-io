@@ -1,15 +1,19 @@
 package io.brewdict.application.android.ui.profile
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -28,17 +34,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import io.brewdict.application.android.MainActivity
 import io.brewdict.application.android.R
 import io.brewdict.application.android.databinding.FragmentProfileBinding
 import io.brewdict.application.android.models.UserPreviewParameterProvider
-import io.brewdict.application.android.ui.recipes.ProfileViewModel
 import io.brewdict.application.api_consumption.models.User
 import io.brewdict.application.apis.brewdict.BrewdictAPI
 
 class ProfileFragment : Fragment() {
-
     private var _binding: FragmentProfileBinding? = null
+    private lateinit var viewModel: ProfileViewModel
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -49,9 +56,6 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val notificationsViewModel =
-            ViewModelProvider(this).get(ProfileViewModel::class.java)
-
         _binding = DataBindingUtil.inflate<FragmentProfileBinding>(
             inflater,
             R.layout.fragment_profile,
@@ -60,7 +64,7 @@ class ProfileFragment : Fragment() {
         ).apply {
             composeView.setContent {
                 MaterialTheme {
-                    Layout()
+                    Content()
                 }
             }
         }
@@ -68,6 +72,58 @@ class ProfileFragment : Fragment() {
         val root: View = binding.root
 
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
+
+        viewModel.passwordResetResult.observe(viewLifecycleOwner,
+            Observer { result ->
+                result ?: return@Observer
+
+                result.success?.let{
+                    resetSuccess()
+                }
+
+                result.error?.let {
+                    fail(it)
+                }
+            }
+        )
+
+        viewModel.logoutResult.observe(viewLifecycleOwner,
+            Observer { result ->
+                result ?: return@Observer
+
+                result.success?.let{
+                    logoutSuccess()
+                }
+
+                result.error?.let {
+                    fail(it)
+                }
+            }
+        )
+    }
+
+    private fun resetSuccess() {
+
+    }
+
+    private fun logoutSuccess() {
+        val welcome = "Logout Successful"
+
+        val appContext = context?.applicationContext ?: return
+        Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
+
+        startActivity(Intent(activity, MainActivity::class.java))
+    }
+
+
+    private fun fail(@StringRes errorString: Int) {
+        val appContext = context?.applicationContext ?: return
+        Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {
@@ -174,7 +230,9 @@ class ProfileFragment : Fragment() {
                             )
                         },
                         value = newPassword.value,
-                        onValueChange = { newPassword.value = it }
+                        onValueChange = { newPassword.value = it },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
 
                     OutlinedTextField(
@@ -193,13 +251,21 @@ class ProfileFragment : Fragment() {
                             )
                         },
                         value = retypeNewPassword.value,
-                        onValueChange = { retypeNewPassword.value = it }
+                        onValueChange = { retypeNewPassword.value = it },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
 
                     OutlinedButton(
                         // TODO: Add button functionality.
-                        onClick = { /* Do something! */ }) {
+                        onClick = { viewModel.resetPassword(newPassword.value.text, retypeNewPassword.value.text) }) {
                         Text("Reset Password")
+                    }
+
+                    Button(
+                        // TODO: Add button functionality.
+                        onClick = { viewModel.logout() }) {
+                        Text("Logout")
                     }
                 }
             }
@@ -207,7 +273,7 @@ class ProfileFragment : Fragment() {
     }
 
     @Composable
-    fun Layout(){
+    fun Content(){
         Column (
             horizontalAlignment = Alignment.CenterHorizontally
         ){
@@ -253,6 +319,6 @@ class ProfileFragment : Fragment() {
     fun LayoutProfilePreview(
         @PreviewParameter(UserPreviewParameterProvider::class) user: User
     ){
-        Layout()
+        Content()
     }
 }
