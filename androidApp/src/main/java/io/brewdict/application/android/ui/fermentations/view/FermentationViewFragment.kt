@@ -278,58 +278,67 @@ class FermentationViewFragment : Fragment() {
                 .height(IntrinsicSize.Min)
                 .fillMaxWidth()
         ) {
-            OutlinedTextField(
-                trailingIcon = {
-                    Text (
-                        text = "SG"
-                    )
-                },
-                label = {
-                    Text (
-                        text = "OG"
-                    )
-                },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                value = og.value,
-                onValueChange = {
-                    og.value = it
-                },
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
-                    .weight(1.0f)
-                    .padding(end = 8.dp)
-            )
-
-            OutlinedTextField(
-                trailingIcon = {
-                    Text (
-                        text = "C"
-                    )
-                },
-                label = {
-                    Text (
-                        text = "Temperature"
-                    )
-                },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                value = temp.value,
-                onValueChange = {
-                    temp.value = it
-                },
-                modifier = Modifier
-                    .weight(1.0f)
-                    .padding(end = 8.dp)
-            )
-
-            Button(
-                onClick = {
-                    viewModel.startFermentation(og.value.text.toFloatOrNull(), temp.value.text.toFloatOrNull())
-                }
-            ) {
-                Text (
-                    text = "Start Fermentation"
+                    .fillMaxWidth()
+            ){
+                OutlinedTextField(
+                    trailingIcon = {
+                        Text (
+                            text = "SG"
+                        )
+                    },
+                    label = {
+                        Text (
+                            text = "OG"
+                        )
+                    },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    value = og.value,
+                    onValueChange = {
+                        og.value = it
+                    },
+                    modifier = Modifier
+                        .weight(1.0f)
+                        .padding(end = 8.dp)
                 )
+
+                OutlinedTextField(
+                    trailingIcon = {
+                        Text (
+                            text = "C"
+                        )
+                    },
+                    label = {
+                        Text (
+                            text = "Temperature"
+                        )
+                    },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    value = temp.value,
+                    onValueChange = {
+                        temp.value = it
+                    },
+                    modifier = Modifier
+                        .weight(1.0f)
+                        .padding(end = 8.dp)
+                )
+
+                Button(
+                    onClick = {
+                        viewModel.startFermentation(og.value.text.toFloatOrNull(), temp.value.text.toFloatOrNull())
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text (
+                        text = "Start Fermentation"
+                    )
+                }
             }
         }
     }
